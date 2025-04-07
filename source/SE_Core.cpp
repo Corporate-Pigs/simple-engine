@@ -1,5 +1,7 @@
 #include "SE_Core.h"
 
+#include "internal/SE_EngineContext.h"
+
 SimpleEngine::SE_EngineContext k_context;
 
 void SimpleEngine::SE_Init(const std::string& windowTitle, const uint32_t windowWidth, const uint32_t windowHeight) {
