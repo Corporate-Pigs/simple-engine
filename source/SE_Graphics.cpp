@@ -1,4 +1,4 @@
-#include "SE_GraphicsEngine.h"
+#include "SE_Graphics.h"
 
 #include "SE.h"
 #include "SE_EngineContext.h"

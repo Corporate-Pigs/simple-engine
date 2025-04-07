@@ -1,6 +1,4 @@
-#include "SE.h"
-
-#include "SE_EngineContext.h"
+#include "SE_Core.h"
 
 SimpleEngine::SE_EngineContext k_context;
 

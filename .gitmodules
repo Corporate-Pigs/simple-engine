@@ -4,6 +4,3 @@
 [submodule "vendor/SDL2_image"]
 	path = vendor/SDL2_image
 	url = https://github.com/libsdl-org/SDL_image.git
-[submodule "vendor/cppvec"]
-	path = vendor/cppvec
-	url = git@github.com:nflsilva/cppvec.git
