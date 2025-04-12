@@ -5,26 +5,17 @@ SimpleEngine::SimpleEngine::SimpleEngine(const std::string& windowTitle, const u
 
 SimpleEngine::SimpleEngine::~SimpleEngine() {}
 
-void SimpleEngine::SimpleEngine::Start() {
+void SimpleEngine::SimpleEngine::Run() {
     while (1) {
         SE_Update();
         Update();
-        SE_Draw();
+        m_graphics.Render();
     }
+    Terminate();
 }
-
-void SimpleEngine::SimpleEngine::Update() {}
 
 void SimpleEngine::SimpleEngine::SE_Update() {
     // get window input, etc
 }
-
-void SimpleEngine::SimpleEngine::SE_Draw() {
-    // draw sprits, swap buffer
-}
-
-void SimpleEngine::SimpleEngine::End() {}
-
-void SimpleEngine::SimpleEngine::DrawSprite() { m_graphics.Initialize(); }
 
 uint64_t SimpleEngine::SimpleEngine::GetTicks() { return 0; }

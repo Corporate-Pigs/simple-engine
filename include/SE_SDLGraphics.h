@@ -2,8 +2,14 @@
 
 #include <iostream>
 
+#include "SE_Sprite.h"
+
+namespace SimpleEngine {
+
 class SE_Graphics {
-   public:
+    friend class SimpleEngine;
+
+   private:
     static constexpr const char* Name() { return "SDL"; }
 
     void Initialize() {
@@ -20,4 +26,9 @@ class SE_Graphics {
         std::cout << "Shutting down SDL..." << std::endl;
         // SDL shutdown code
     }
+
+   public:
+    void DrawSprite(const SE_Sprite& sprite);
 };
+
+}  // namespace SimpleEngine
