@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+namespace SimpleEngine {
+
 class SE_Graphics {
    public:
     static constexpr const char* Name() { return "SMT"; }
@@ -21,3 +23,5 @@ class SE_Graphics {
         // SMT shutdown code
     }
 };
+
+}  // namespace SimpleEngine

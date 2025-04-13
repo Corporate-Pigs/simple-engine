@@ -3,37 +3,33 @@
 #include <cstdint>
 #include <string>
 
-#define SE_SMT_GRAPHICS
-
+#define SE_SDL_GRAPHICS
 #ifdef SE_SDL_GRAPHICS
-#include "SE_SDLGraphics.h"
+#include "SDL/SE_SDLBackend.h"
 #elif defined(SE_SMT_GRAPHICS)
-#include "SE_SMTGraphics.h"
+#include "SMT/SE_SMTGraphics.h"
 #else
 #error "No backend selected!"
 #endif
 
+#include "SE_Options.h"
+
 namespace SimpleEngine {
 
 class SimpleEngine {
-   private:
-    void SE_Update();
+   public:
+    SimpleEngine(const SE_Options& options);
+    ~SimpleEngine();
+    void Run();
 
    protected:
-    SE_Graphics m_graphics;
-    //SE_Input m_input;
-    double m_elapsedTime;
-
-    uint64_t GetTicks();
+    SE_Backend m_backend;
 
     virtual void Start() = 0;
     virtual void Update() = 0;
-    virtual void Terminate() = 0;
+    virtual void Cleanup() = 0;
 
-   public:
-    SimpleEngine(const std::string& windowTitle, const uint32_t windowWidth, const uint32_t windowHeight);
-    ~SimpleEngine();
-    void Run();
+   private:
 };
 
 }  // namespace SimpleEngine

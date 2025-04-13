@@ -1,21 +1,17 @@
 #include "SE.h"
 
-SimpleEngine::SimpleEngine::SimpleEngine(const std::string& windowTitle, const uint32_t windowWidth,
-                                         const uint32_t windowHeight) {}
+SimpleEngine::SimpleEngine::SimpleEngine(const SE_Options& a_options)
+    : m_backend(a_options.windowTitle, a_options.windowWidth, a_options.windowHeight) {}
 
 SimpleEngine::SimpleEngine::~SimpleEngine() {}
 
 void SimpleEngine::SimpleEngine::Run() {
-    while (1) {
-        SE_Update();
+    m_backend.Start();
+    Start();
+    while (m_backend.m_isRunning) {
+        m_backend.Update();
         Update();
-        m_graphics.Render();
+        m_backend.Render();
     }
-    Terminate();
+    Cleanup();
 }
-
-void SimpleEngine::SimpleEngine::SE_Update() {
-    // get window input, etc
-}
-
-uint64_t SimpleEngine::SimpleEngine::GetTicks() { return 0; }
