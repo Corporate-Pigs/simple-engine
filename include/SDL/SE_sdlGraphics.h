@@ -20,7 +20,6 @@ struct Graphics
     void DrawSprite(Sprite &p_sprite);
 
    protected:
-    SDL_Window *m_windowPtr;
     SDL_Renderer *m_rendererPtr;
     bool m_isRunning;
 

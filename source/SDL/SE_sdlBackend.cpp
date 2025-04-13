@@ -1,7 +1,5 @@
 #include "SDL/SE_sdlBackend.h"
 
-#include <SDL_image.h>
-
 #include <stdexcept>
 #include <string>
 

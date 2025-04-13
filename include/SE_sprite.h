@@ -7,8 +7,8 @@
 namespace SimpleEngine {
 
 struct Sprite {
-    const std::string k_asset;
-    Color color;
+    const std::string c_asset;
+    Color m_color;
 };
 
 }  // namespace SimpleEngine

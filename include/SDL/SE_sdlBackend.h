@@ -16,16 +16,9 @@ struct Backend
     friend class Game;
 
    public:
-   /*
-    void PlaySoundEffect();
-    void PlayMusic();
-
-    void GetInput();
-    */
-   protected:
-    // Input m_input;
     Graphics m_graphics;
-    // Sound m_sound;
+
+   protected:
     bool m_isRunning;
 
    private:

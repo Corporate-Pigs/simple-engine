@@ -19,7 +19,7 @@ namespace SimpleEngine {
 class Game {
    public:
     Game(const Options& options);
-    ~Game();
+    virtual ~Game();
     void Run();
 
    protected:
