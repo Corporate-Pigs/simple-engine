@@ -5,7 +5,7 @@
 
 #define SE_SDL_GRAPHICS
 #ifdef SE_SDL_GRAPHICS
-#include "SDL/SE_SDLBackend.h"
+#include "SE_SDLBackend.h"
 #elif defined(SE_SMT_GRAPHICS)
 #include "SMT/SE_SMTGraphics.h"
 #else
