@@ -4,7 +4,7 @@
 
 namespace SimpleEngine {
 
-struct SE_Color {
+struct Color {
     uint8_t r, g, b, a;
 };
 

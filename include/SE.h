@@ -3,27 +3,27 @@
 #include <cstdint>
 #include <string>
 
-#define SE_SDL_GRAPHICS
-#ifdef SE_SDL_GRAPHICS
-#include "SE_SDLBackend.h"
-#elif defined(SE_SMT_GRAPHICS)
-#include "SMT/SE_SMTGraphics.h"
+#define SE_SDL_BACKEND
+#ifdef SE_SDL_BACKEND
+#include "SDL/SE_sdlBackend.h"
+#elif defined(SE_SMT_BACKEND)
+#include "SE_NDSGraphics.h"
 #else
 #error "No backend selected!"
 #endif
 
-#include "SE_Options.h"
+#include "SE_options.h"
 
 namespace SimpleEngine {
 
-class SimpleEngine {
+class Game {
    public:
-    SimpleEngine(const SE_Options& options);
-    ~SimpleEngine();
+    Game(const Options& options);
+    ~Game();
     void Run();
 
    protected:
-    SE_Backend m_backend;
+    Backend m_backend;
 
     virtual void Start() = 0;
     virtual void Update() = 0;

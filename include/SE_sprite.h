@@ -2,14 +2,13 @@
 
 #include <string>
 
-#include "SE_Color.h"
+#include "SE_color.h"
 
 namespace SimpleEngine {
 
-struct SE_Sprite {
+struct Sprite {
     const std::string k_asset;
-    SE_Color color;
-    SE_Sprite(const std::string& asset);
+    Color color;
 };
 
 }  // namespace SimpleEngine

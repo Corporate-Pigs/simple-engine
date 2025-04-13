@@ -5,7 +5,7 @@
 
 namespace SimpleEngine {
 
-struct SE_Options {
+struct Options {
     std::string windowTitle;
     uint16_t windowWidth, windowHeight;
 };
