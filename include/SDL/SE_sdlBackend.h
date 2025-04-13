@@ -31,7 +31,6 @@ struct Backend
 
     void Start();
     void Update();
-    void Render();
     void Cleanup();
 };
 

@@ -50,8 +50,6 @@ void SimpleEngine::Backend::Update()
     }
 }
 
-void SimpleEngine::Backend::Render() {}
-
 void SimpleEngine::Backend::Cleanup()
 {
     m_graphics.Cleanup();

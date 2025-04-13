@@ -11,10 +11,15 @@ SimpleEngine::Game::~Game() {
 void SimpleEngine::Game::Run() {
     m_backend.Start();
     Start();
+
     while (m_backend.m_isRunning) {
+
         m_backend.Update();
         Update();
+        
         m_backend.m_graphics.Render();
     }
+
+    m_backend.Cleanup();
     Cleanup();
 }

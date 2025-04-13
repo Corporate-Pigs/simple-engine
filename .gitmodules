@@ -1,3 +1,6 @@
 [submodule "vendor/SDL2"]
 	path = vendor/SDL2
 	url = https://github.com/libsdl-org/SDL.git
+[submodule "vendor/cppvec"]
+	path = vendor/cppvec
+	url = git@github.com:Corporate-Pigs/cppvec.git

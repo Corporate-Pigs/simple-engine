@@ -4,8 +4,13 @@
 
 #include <stdexcept>
 #include <string>
+#include <unordered_map>
+#include <vector>
 
 #include "SE_sprite.h"
+#include "SE_transform.h"
+
+#define MAX_LAYERS 32
 
 namespace SimpleEngine
 {
@@ -17,16 +22,35 @@ struct Graphics
 
    public:
     void DrawText();
-    void DrawSprite(Sprite &p_sprite);
-
-   protected:
-    SDL_Renderer *m_rendererPtr;
-    bool m_isRunning;
+    void DrawSprite(Sprite *p_spritePtr, const Transform& p_transform);
 
    private:
+
+    enum class RenderingUnitType {
+        UNDEFINED = 0,
+        SPRITE
+    };
+
+    struct RenderingUnit
+    {
+        RenderingUnitType m_type;
+        Transform m_transform;
+        Sprite *m_sprite;
+    };
+
+    bool m_isRunning;
+    SDL_Renderer *m_rendererPtr;
+    std::unordered_map<std::string, SDL_Texture *> m_textureCache;
+    std::vector<RenderingUnit> m_layers[MAX_LAYERS];
+
     void Start(SDL_Window *p_windowPtr);
     void Render();
     void Cleanup();
+
+    SDL_Texture *CreateSDLTexture(const std::string &p_assetPath);
+    SDL_Texture *GetSDLTextureForAssetName(const std::string &p_assetPath);
+    void RenderSprite(const RenderingUnit& p_renderingUnitRef);
+    void RenderLayers();
 };
 
 }  // namespace SimpleEngine
