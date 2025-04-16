@@ -13,11 +13,16 @@
 // Public functions
 void SimpleEngine::Graphics::DrawText() {}
 
-void SimpleEngine::Graphics::DrawSprite(Sprite *p_spritePtr, const Transform &p_transform)
+void SimpleEngine::Graphics::DrawSprite(Sprite &p_spriteRef, const Transform &p_transform)
 {
+    SDL_Texture *texturePtr = GetSDLTextureForAssetName(p_spriteRef.c_asset);
+    assert(texturePtr);
+
     uint32_t layerIndex = p_transform.m_layer % MAX_LAYERS;
     std::vector<RenderingUnit> &layerRef = m_layers[layerIndex];
-    layerRef.emplace_back(RenderingUnitType::SPRITE, p_transform, p_spritePtr);
+
+    RenderingUnit ru = {RenderingUnitType::SPRITE, p_transform, texturePtr}; 
+    layerRef.emplace_back(ru);
 }
 
 // Private functions
@@ -95,7 +100,7 @@ SDL_Texture *SimpleEngine::Graphics::GetSDLTextureForAssetName(const std::string
 
 void SimpleEngine::Graphics::RenderSprite(const RenderingUnit &p_renderingUnitRef)
 {
-    SDL_Texture *texturePtr = GetSDLTextureForAssetName(p_renderingUnitRef.m_sprite->c_asset);
+    SDL_Texture *texturePtr = p_renderingUnitRef.m_item.m_texture;
     assert(texturePtr);
 
     int w, h;
