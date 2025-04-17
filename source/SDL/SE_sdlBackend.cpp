@@ -31,6 +31,12 @@ void SimpleEngine::Backend::Start()
     }
 
     m_graphics.Start(m_windowPtr);
+
+    if (TTF_Init() == -1)
+    {
+        // handle error
+    }
+
     m_isRunning = true;
 }
 

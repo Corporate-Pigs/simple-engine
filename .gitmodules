@@ -4,3 +4,11 @@
 [submodule "vendor/cppvec"]
 	path = vendor/cppvec
 	url = git@github.com:Corporate-Pigs/cppvec.git
+[submodule "vendor/SDL2_ttf"]
+	path = vendor/SDL2_ttf
+	url = https://github.com/libsdl-org/SDL_ttf.git
+	branch = SDL2
+[submodule "vendor/SDL2_image"]
+	path = vendor/SDL2_image
+	url = https://github.com/libsdl-org/SDL_image.git
+	branch = SDL2

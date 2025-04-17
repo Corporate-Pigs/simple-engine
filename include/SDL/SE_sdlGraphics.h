@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SDL.h>
+#include <SDL_ttf.h>
 
 #include <stdexcept>
 #include <string>
@@ -44,6 +45,7 @@ namespace SimpleEngine
 
         bool m_isRunning;
         SDL_Renderer *m_rendererPtr;
+        TTF_Font *m_fontPtr; 
         std::unordered_map<std::string, SDL_Texture *> m_textureCache;
         std::vector<RenderingUnit> m_layers[MAX_LAYERS];
 

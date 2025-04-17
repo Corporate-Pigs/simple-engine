@@ -1,14 +1,11 @@
 #include "SDL/SE_sdlGraphics.h"
 
-#include <stb_image.h>
+#include <SDL_image.h>
 
 #include <cassert>
 
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-#define SURFACE_MASKS 0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF
-#else
-#define SURFACE_MASKS 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000
-#endif
+static constexpr const char* k_defaultFontAssetPath = "@SE_ASSET_PATH@/font/lazy.ttf";
+static constexpr int k_defaultFontPtSize = 32;
 
 // Public functions
 void SimpleEngine::Graphics::DrawText() {}
@@ -21,7 +18,7 @@ void SimpleEngine::Graphics::DrawSprite(Sprite &p_spriteRef, const Transform &p_
     uint32_t layerIndex = p_transform.m_layer % MAX_LAYERS;
     std::vector<RenderingUnit> &layerRef = m_layers[layerIndex];
 
-    RenderingUnit ru = {RenderingUnitType::SPRITE, p_transform, texturePtr}; 
+    RenderingUnit ru = {RenderingUnitType::SPRITE, p_transform, texturePtr};
     layerRef.emplace_back(ru);
 }
 
@@ -33,6 +30,25 @@ void SimpleEngine::Graphics::Start(SDL_Window *p_windowPtr)
     {
         std::string error = SDL_GetError();
         throw std::runtime_error("[SDLGraphics] Error initializing SDL renderer: " + error);
+    }
+
+    if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG))
+    {
+        std::string error = IMG_GetError();
+        throw std::runtime_error("[SDLGraphics] Error initializing IMG: " + error);
+    }
+
+    if (TTF_Init() == -1)
+    {
+        std::string error = TTF_GetError();
+        throw std::runtime_error("[SDLGraphics] Error initializing TTF: " + error);
+    }
+
+    m_fontPtr = TTF_OpenFont(k_defaultFontAssetPath, k_defaultFontPtSize);
+    if (!m_fontPtr)
+    {
+        std::string error = TTF_GetError();
+        //throw std::runtime_error("[SDLGraphics] Error opening font: " + error);
     }
 }
 
@@ -48,39 +64,40 @@ void SimpleEngine::Graphics::Render()
 
 void SimpleEngine::Graphics::Cleanup()
 {
+    if (!m_rendererPtr)
+    {
+        return;
+    }
+
+    TTF_CloseFont(m_fontPtr);
+
     for (auto const &[key, mTexturePtr] : m_textureCache)
     {
         SDL_DestroyTexture(mTexturePtr);
     }
+
     SDL_DestroyRenderer(m_rendererPtr);
+    IMG_Quit();
+    TTF_Quit();
 }
 
 // Helper functions
 SDL_Texture *SimpleEngine::Graphics::CreateSDLTexture(const std::string &p_assetPath)
 {
-    int width, height, channels;
-    unsigned char *imageDataPtr = stbi_load(p_assetPath.c_str(), &width, &height, &channels, 4);
-    if (!imageDataPtr)
-    {
-        throw std::runtime_error("[SDLGraphics] Error loading sprite: " + p_assetPath);
-    }
-
-    SDL_Surface *surfacePtr = SDL_CreateRGBSurfaceFrom(imageDataPtr, width, height, 32, width * 4, SURFACE_MASKS);
+    SDL_Surface *surfacePtr = IMG_Load(p_assetPath.c_str());
     if (!surfacePtr)
     {
-        free(surfacePtr);
-        throw std::runtime_error("[SDLGraphics] Error creating surface from asset: " + p_assetPath);
+        std::string error = IMG_GetError();
+        throw std::runtime_error("[SDLGraphics] Error creating surface from asset: " + p_assetPath + ". " + error);
     }
 
     SDL_Texture *texturePtr = SDL_CreateTextureFromSurface(m_rendererPtr, surfacePtr);
     if (!texturePtr)
     {
-        free(imageDataPtr);
         SDL_FreeSurface(surfacePtr);
         std::string error = SDL_GetError();
         throw std::runtime_error("[SDLGraphics] Error creating texture from asset: " + p_assetPath + ". " + error);
     }
-    free(imageDataPtr);
     SDL_FreeSurface(surfacePtr);
 
     m_textureCache[p_assetPath] = texturePtr;
@@ -111,8 +128,7 @@ void SimpleEngine::Graphics::RenderSprite(const RenderingUnit &p_renderingUnitRe
     }
 
     const SDL_FRect screenRect = {p_renderingUnitRef.m_transform.m_position.x,
-                                  p_renderingUnitRef.m_transform.m_position.y, 
-                                  static_cast<float>(w),
+                                  p_renderingUnitRef.m_transform.m_position.y, static_cast<float>(w),
                                   static_cast<float>(h)};
 
     if (SDL_RenderCopyExF(m_rendererPtr, texturePtr, NULL, &screenRect, p_renderingUnitRef.m_transform.m_rotation, NULL,
