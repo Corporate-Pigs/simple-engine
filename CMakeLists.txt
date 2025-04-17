@@ -16,11 +16,16 @@ file(GLOB_RECURSE ENGINE_SOURCES "source/*.cpp")
 # Add the Engine library target
 add_library(simple-engine STATIC ${ENGINE_SOURCES})
 
-# Add dependencies
+# Add SDL dependencies
 set(BUILD_SHARED_LIBS OFF)
+set(SDL2TTF_VENDORED ON)
+set(SDL2MIXER_VENDORED ON)
 add_subdirectory(vendor/SDL2)
 add_subdirectory(vendor/SDL2_ttf)
 add_subdirectory(vendor/SDL2_image)
+add_subdirectory(vendor/SDL2_mixer)
+
+# Add other dependencies
 add_subdirectory(vendor/cppvec)
 
 # Specify include directories for the Engine library
@@ -30,4 +35,4 @@ target_include_directories(simple-engine PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/incl
 target_include_directories(simple-engine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/source)
 
 # Link libraries to Engine
-target_link_libraries(simple-engine PUBLIC SDL2::SDL2-static SDL2::SDL2main SDL2_ttf::SDL2_ttf-static SDL2_image::SDL2_image-static cppvec)
+target_link_libraries(simple-engine PUBLIC SDL2::SDL2-static SDL2::SDL2main SDL2_ttf::SDL2_ttf-static SDL2_image::SDL2_image-static SDL2_mixer::SDL2_mixer-static cppvec)
