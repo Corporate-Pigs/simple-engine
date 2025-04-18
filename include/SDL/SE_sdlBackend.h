@@ -19,9 +19,11 @@ struct Backend
 
    public:
     Graphics m_graphics;
+    const double GetElapsedTime();
 
    protected:
     bool m_isRunning;
+    double m_elapsedTimeInSeconds;
 
    private:
     Backend(const std::string &p_windowTitle, uint16_t p_windowWidth, uint16_t p_windowHeight);
@@ -30,6 +32,7 @@ struct Backend
     const std::string m_windowTitle;
     const uint16_t m_windowWidth;
     const uint16_t m_windowHeight;
+    uint32_t m_lastUpdateStart;
 
     void Start();
     void Update();

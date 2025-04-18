@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cassert>
 #include <cstdint>
 #include <string>
 
@@ -14,9 +15,11 @@
 
 #include "SE_options.h"
 
-namespace SimpleEngine {
+namespace SimpleEngine
+{
 
-class Game {
+class Game
+{
    public:
     Game(const Options& options);
     virtual ~Game();

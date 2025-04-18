@@ -8,9 +8,13 @@ SimpleEngine::Backend::Backend(const std::string &p_windowTitle, uint16_t p_wind
       m_windowTitle(p_windowTitle),
       m_windowWidth(p_windowWidth),
       m_windowHeight(p_windowHeight),
-      m_isRunning(false)
+      m_isRunning(false),
+      m_elapsedTimeInSeconds(0),
+      m_lastUpdateStart(0)
 {
 }
+
+const double SimpleEngine::Backend::GetElapsedTime() { return m_elapsedTimeInSeconds; }
 
 // Private Functions
 void SimpleEngine::Backend::Start()
@@ -35,6 +39,10 @@ void SimpleEngine::Backend::Start()
 
 void SimpleEngine::Backend::Update()
 {
+    uint32_t currentTime = SDL_GetTicks();
+    m_elapsedTimeInSeconds = (currentTime - m_lastUpdateStart) / 1000.0f;  // seconds
+    m_lastUpdateStart = currentTime;
+
     SDL_Event event;
     while (SDL_PollEvent(&event) != 0)
     {
