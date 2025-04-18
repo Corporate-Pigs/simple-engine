@@ -12,9 +12,7 @@ void SimpleEngine::Graphics::DrawLabel(const Label &p_label, const Transform &p_
     assert(fontPtr);
 
     SDL_Surface *surfacePtr = TTF_RenderText_Blended(
-        fontPtr, 
-        p_label.m_text.c_str(), 
-        { p_label.m_color.r, p_label.m_color.g, p_label.m_color.b, p_label.m_color.a });
+        fontPtr, p_label.m_text.c_str(), {p_label.m_color.r, p_label.m_color.g, p_label.m_color.b, p_label.m_color.a});
 
     SDL_Texture *texturePtr = SDL_CreateTextureFromSurface(m_rendererPtr, surfacePtr);
     SDL_FreeSurface(surfacePtr);
@@ -22,7 +20,11 @@ void SimpleEngine::Graphics::DrawLabel(const Label &p_label, const Transform &p_
     uint32_t layerIndex = p_transform.m_layer % k_maxLayers;
     std::vector<RenderingUnit> &layerRef = m_layers[layerIndex];
 
-    RenderingUnit ru = {RenderingUnitType::SPRITE, p_transform, texturePtr};
+    RenderingUnit ru = {RenderingUnitType::LABEL,
+                        {p_transform.m_layer, p_transform.m_position,
+                         p_transform.m_scale * (static_cast<float>(p_label.c_font_ptsize) / k_defaultFontPtSize),
+                         p_transform.m_rotation},
+                        texturePtr};
     layerRef.emplace_back(ru);
 }
 
@@ -144,31 +146,42 @@ TTF_Font *SimpleEngine::Graphics::GetTTFFontForAssetName(const std::string &p_as
     {
         return it->second;
     }
-    return CreateTTFFont(p_assetPath, 32);
+    return CreateTTFFont(p_assetPath, k_defaultFontPtSize);
 }
 
-void SimpleEngine::Graphics::RenderSprite(const RenderingUnit &p_renderingUnitRef)
+void SimpleEngine::Graphics::RenderSDLTexture(SDL_Texture *p_texturePtr, const Transform &p_transform)
 {
-    SDL_Texture *texturePtr = p_renderingUnitRef.m_item.m_texture;
-    assert(texturePtr);
+    assert(p_texturePtr);
 
     int w, h;
-    if (SDL_QueryTexture(texturePtr, NULL, NULL, &w, &h))
+    if (SDL_QueryTexture(p_texturePtr, NULL, NULL, &w, &h))
     {
         std::string error = SDL_GetError();
         throw std::runtime_error("[SDLGraphics] Error query texture: " + error);
     }
 
-    const SDL_FRect screenRect = {p_renderingUnitRef.m_transform.m_position.x,
-                                  p_renderingUnitRef.m_transform.m_position.y, static_cast<float>(w),
-                                  static_cast<float>(h)};
+    const SDL_FRect screenRect = {p_transform.m_position.x, p_transform.m_position.y,
+                                  static_cast<float>(w) * p_transform.m_scale.x,
+                                  static_cast<float>(h) * p_transform.m_scale.y};
 
-    if (SDL_RenderCopyExF(m_rendererPtr, texturePtr, NULL, &screenRect, p_renderingUnitRef.m_transform.m_rotation, NULL,
-                          SDL_FLIP_NONE))
+    if (SDL_RenderCopyExF(m_rendererPtr, p_texturePtr, NULL, &screenRect, p_transform.m_rotation, NULL, SDL_FLIP_NONE))
     {
         std::string error = SDL_GetError();
         throw std::runtime_error("[SDLGraphics] Error while render copy exF: " + error);
     };
+}
+
+void SimpleEngine::Graphics::RenderSprite(const RenderingUnit &p_renderingUnitRef)
+{
+    SDL_Texture *texturePtr = p_renderingUnitRef.m_item.m_texture;
+    RenderSDLTexture(texturePtr, p_renderingUnitRef.m_transform);
+}
+
+void SimpleEngine::Graphics::RenderLabel(const RenderingUnit &p_renderingUnitRef)
+{
+    SDL_Texture *texturePtr = p_renderingUnitRef.m_item.m_texture;
+    RenderSDLTexture(texturePtr, p_renderingUnitRef.m_transform);
+    SDL_DestroyTexture(texturePtr);
 }
 
 void SimpleEngine::Graphics::RenderLayers()
@@ -184,6 +197,9 @@ void SimpleEngine::Graphics::RenderLayers()
             {
                 case RenderingUnitType::SPRITE:
                     RenderSprite(renderingUnitRef);
+                    break;
+                case RenderingUnitType::LABEL:
+                    RenderLabel(renderingUnitRef);
                     break;
                 case RenderingUnitType::UNDEFINED:
                 default:

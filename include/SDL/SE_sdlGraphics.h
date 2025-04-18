@@ -13,6 +13,7 @@
 #include "SE_transform.h"
 
 static constexpr uint32_t k_maxLayers = 32;
+static constexpr uint32_t k_defaultFontPtSize = 100;
 
 namespace SimpleEngine
 {
@@ -30,14 +31,15 @@ struct Graphics
     enum class RenderingUnitType
     {
         UNDEFINED = 0,
-        SPRITE
+        SPRITE,
+        LABEL
     };
 
     struct RenderingUnit
     {
-        RenderingUnitType m_type;
-        Transform m_transform;
-        union RenderingItem
+        const RenderingUnitType m_type;
+        const Transform m_transform;
+        const union RenderingItem
         {
             SDL_Texture *m_texture;
 
@@ -62,7 +64,9 @@ struct Graphics
     TTF_Font *CreateTTFFont(const std::string &p_assetPath, const uint32_t p_ptsize);
     TTF_Font *GetTTFFontForAssetName(const std::string &p_assetPath);
 
+    void RenderSDLTexture(SDL_Texture *p_texturePtr, const Transform &p_transform);
     void RenderSprite(const RenderingUnit &p_renderingUnitRef);
+    void RenderLabel(const RenderingUnit &p_renderingUnitRef);
     void RenderLayers();
 };
 
