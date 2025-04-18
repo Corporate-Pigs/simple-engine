@@ -20,7 +20,7 @@ void SimpleEngine::Graphics::DrawLabel(const Label &p_label, const Transform &p_
     uint32_t layerIndex = p_transform.m_layer % k_maxLayers;
     std::vector<RenderingUnit> &layerRef = m_layers[layerIndex];
 
-    RenderingUnit ru = {RenderingUnitType::LABEL,
+    RenderingUnit ru = {RenderingUnit::Type::LABEL,
                         {p_transform.m_layer, p_transform.m_position,
                          p_transform.m_scale * (static_cast<float>(p_label.c_font_ptsize) / k_defaultFontPtSize),
                          p_transform.m_rotation},
@@ -36,7 +36,7 @@ void SimpleEngine::Graphics::DrawSprite(const Sprite &p_sprite, const Transform 
     uint32_t layerIndex = p_transform.m_layer % k_maxLayers;
     std::vector<RenderingUnit> &layerRef = m_layers[layerIndex];
 
-    RenderingUnit ru = {RenderingUnitType::SPRITE, p_transform, texturePtr};
+    RenderingUnit ru = {RenderingUnit::Type::SPRITE, p_transform, texturePtr, p_sprite.m_modifiers};
     layerRef.emplace_back(ru);
 }
 
@@ -149,39 +149,58 @@ TTF_Font *SimpleEngine::Graphics::GetTTFFontForAssetName(const std::string &p_as
     return CreateTTFFont(p_assetPath, k_defaultFontPtSize);
 }
 
-void SimpleEngine::Graphics::RenderSDLTexture(SDL_Texture *p_texturePtr, const Transform &p_transform)
+void SimpleEngine::Graphics::RenderSprite(const RenderingUnit &p_renderingUnitRef)
 {
-    assert(p_texturePtr);
+    SDL_Texture *texturePtr = p_renderingUnitRef.m_item.m_texture;
+    assert(texturePtr);
 
     int w, h;
-    if (SDL_QueryTexture(p_texturePtr, NULL, NULL, &w, &h))
+    if (SDL_QueryTexture(texturePtr, NULL, NULL, &w, &h))
     {
         std::string error = SDL_GetError();
         throw std::runtime_error("[SDLGraphics] Error query texture: " + error);
     }
 
-    const SDL_FRect screenRect = {p_transform.m_position.x, p_transform.m_position.y,
-                                  static_cast<float>(w) * p_transform.m_scale.x,
-                                  static_cast<float>(h) * p_transform.m_scale.y};
+    SDL_FRect screenRect = {p_renderingUnitRef.m_transform.m_position.x, p_renderingUnitRef.m_transform.m_position.y,
+                            static_cast<float>(w) * p_renderingUnitRef.m_transform.m_scale.x,
+                            static_cast<float>(h) * p_renderingUnitRef.m_transform.m_scale.y};
 
-    if (SDL_RenderCopyExF(m_rendererPtr, p_texturePtr, NULL, &screenRect, p_transform.m_rotation, NULL, SDL_FLIP_NONE))
+    SDL_Rect *atlasRectPtr = NULL;
+    SDL_Rect atlasRect;
+
+    for (const auto modifier : p_renderingUnitRef.m_modifiers)
+    {
+        switch (modifier.m_type)
+        {
+            case Modifier::Type::ATLAS:
+            {
+                int tw = w / modifier.m_atlas.m_numberOfColumns;
+                int th = h / modifier.m_atlas.m_numberOfRows;
+                int tx = modifier.m_atlas.m_spriteIndex % modifier.m_atlas.m_numberOfColumns * tw;
+                int ty = modifier.m_atlas.m_spriteIndex / modifier.m_atlas.m_numberOfColumns * th;
+                atlasRect = {tx, ty, tw, th};
+                atlasRectPtr = &atlasRect;
+                screenRect.w = tw;
+                screenRect.h = th;
+            }
+            break;
+            default:
+                assert(false);
+        }
+    }
+
+    if (SDL_RenderCopyExF(m_rendererPtr, texturePtr, atlasRectPtr, &screenRect,
+                          p_renderingUnitRef.m_transform.m_rotation, NULL, SDL_FLIP_NONE))
     {
         std::string error = SDL_GetError();
         throw std::runtime_error("[SDLGraphics] Error while render copy exF: " + error);
     };
 }
 
-void SimpleEngine::Graphics::RenderSprite(const RenderingUnit &p_renderingUnitRef)
-{
-    SDL_Texture *texturePtr = p_renderingUnitRef.m_item.m_texture;
-    RenderSDLTexture(texturePtr, p_renderingUnitRef.m_transform);
-}
-
 void SimpleEngine::Graphics::RenderLabel(const RenderingUnit &p_renderingUnitRef)
 {
-    SDL_Texture *texturePtr = p_renderingUnitRef.m_item.m_texture;
-    RenderSDLTexture(texturePtr, p_renderingUnitRef.m_transform);
-    SDL_DestroyTexture(texturePtr);
+    RenderSprite(p_renderingUnitRef);
+    SDL_DestroyTexture(p_renderingUnitRef.m_item.m_texture);
 }
 
 void SimpleEngine::Graphics::RenderLayers()
@@ -195,13 +214,13 @@ void SimpleEngine::Graphics::RenderLayers()
 
             switch (renderingUnitRef.m_type)
             {
-                case RenderingUnitType::SPRITE:
+                case RenderingUnit::Type::SPRITE:
                     RenderSprite(renderingUnitRef);
                     break;
-                case RenderingUnitType::LABEL:
+                case RenderingUnit::Type::LABEL:
                     RenderLabel(renderingUnitRef);
                     break;
-                case RenderingUnitType::UNDEFINED:
+                case RenderingUnit::Type::UNDEFINED:
                 default:
                     assert(false);
             }

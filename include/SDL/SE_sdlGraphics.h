@@ -28,22 +28,16 @@ struct Graphics
     void DrawSprite(const Sprite &p_sprite, const Transform &p_transform);
 
    private:
-    enum class RenderingUnitType
-    {
-        UNDEFINED = 0,
-        SPRITE,
-        LABEL
-    };
-
     struct RenderingUnit
     {
-        const RenderingUnitType m_type;
+        const enum class Type { UNDEFINED = 0, SPRITE, LABEL } m_type;
         const Transform m_transform;
-        const union RenderingItem
+        const union
         {
             SDL_Texture *m_texture;
 
         } m_item;
+        std::vector<Modifier> m_modifiers;
     };
 
     bool m_isRunning;
@@ -59,12 +53,10 @@ struct Graphics
 
     // Helper functions
     SDL_Texture *CreateSDLTexture(const std::string &p_assetPath);
-    SDL_Texture *GetSDLTextureForAssetName(const std::string &p_assetPath);
-
     TTF_Font *CreateTTFFont(const std::string &p_assetPath, const uint32_t p_ptsize);
+    SDL_Texture *GetSDLTextureForAssetName(const std::string &p_assetPath);
     TTF_Font *GetTTFFontForAssetName(const std::string &p_assetPath);
 
-    void RenderSDLTexture(SDL_Texture *p_texturePtr, const Transform &p_transform);
     void RenderSprite(const RenderingUnit &p_renderingUnitRef);
     void RenderLabel(const RenderingUnit &p_renderingUnitRef);
     void RenderLayers();
