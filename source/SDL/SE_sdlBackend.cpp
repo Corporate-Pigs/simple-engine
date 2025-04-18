@@ -13,7 +13,6 @@ SimpleEngine::Backend::Backend(const std::string &p_windowTitle, uint16_t p_wind
 }
 
 // Private Functions
-
 void SimpleEngine::Backend::Start()
 {
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -31,12 +30,6 @@ void SimpleEngine::Backend::Start()
     }
 
     m_graphics.Start(m_windowPtr);
-
-    if (TTF_Init() == -1)
-    {
-        // handle error
-    }
-
     m_isRunning = true;
 }
 

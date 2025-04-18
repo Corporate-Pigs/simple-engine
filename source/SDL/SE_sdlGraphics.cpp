@@ -1,28 +1,43 @@
 #include "SDL/SE_sdlGraphics.h"
 
 #include <SDL_image.h>
+#include <SDL_ttf.h>
 
 #include <cassert>
 
-static constexpr const char* k_defaultFontAssetPath = "@SE_ASSET_PATH@/font/lazy.ttf";
-static constexpr int k_defaultFontPtSize = 32;
-
 // Public functions
-void SimpleEngine::Graphics::DrawText() {}
-
-void SimpleEngine::Graphics::DrawSprite(Sprite &p_spriteRef, const Transform &p_transform)
+void SimpleEngine::Graphics::DrawLabel(const Label &p_label, const Transform &p_transform)
 {
-    SDL_Texture *texturePtr = GetSDLTextureForAssetName(p_spriteRef.c_asset);
-    assert(texturePtr);
+    TTF_Font *fontPtr = GetTTFFontForAssetName(p_label.c_font_asset);
+    assert(fontPtr);
 
-    uint32_t layerIndex = p_transform.m_layer % MAX_LAYERS;
+    SDL_Surface *surfacePtr = TTF_RenderText_Blended(
+        fontPtr, 
+        p_label.m_text.c_str(), 
+        { p_label.m_color.r, p_label.m_color.g, p_label.m_color.b, p_label.m_color.a });
+
+    SDL_Texture *texturePtr = SDL_CreateTextureFromSurface(m_rendererPtr, surfacePtr);
+    SDL_FreeSurface(surfacePtr);
+
+    uint32_t layerIndex = p_transform.m_layer % k_maxLayers;
     std::vector<RenderingUnit> &layerRef = m_layers[layerIndex];
 
     RenderingUnit ru = {RenderingUnitType::SPRITE, p_transform, texturePtr};
     layerRef.emplace_back(ru);
 }
 
-// Private functions
+void SimpleEngine::Graphics::DrawSprite(const Sprite &p_sprite, const Transform &p_transform)
+{
+    SDL_Texture *texturePtr = GetSDLTextureForAssetName(p_sprite.c_asset);
+    assert(texturePtr);
+
+    uint32_t layerIndex = p_transform.m_layer % k_maxLayers;
+    std::vector<RenderingUnit> &layerRef = m_layers[layerIndex];
+
+    RenderingUnit ru = {RenderingUnitType::SPRITE, p_transform, texturePtr};
+    layerRef.emplace_back(ru);
+}
+
 void SimpleEngine::Graphics::Start(SDL_Window *p_windowPtr)
 {
     m_rendererPtr = SDL_CreateRenderer(p_windowPtr, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
@@ -43,13 +58,7 @@ void SimpleEngine::Graphics::Start(SDL_Window *p_windowPtr)
         std::string error = TTF_GetError();
         throw std::runtime_error("[SDLGraphics] Error initializing TTF: " + error);
     }
-
-    m_fontPtr = TTF_OpenFont(k_defaultFontAssetPath, k_defaultFontPtSize);
-    if (!m_fontPtr)
-    {
-        std::string error = TTF_GetError();
-        //throw std::runtime_error("[SDLGraphics] Error opening font: " + error);
-    }
+    m_wasInitiated = true;
 }
 
 void SimpleEngine::Graphics::Render()
@@ -64,12 +73,15 @@ void SimpleEngine::Graphics::Render()
 
 void SimpleEngine::Graphics::Cleanup()
 {
-    if (!m_rendererPtr)
+    if (!m_wasInitiated)
     {
         return;
     }
 
-    TTF_CloseFont(m_fontPtr);
+    for (auto const &[key, m_fontPtr] : m_fontCache)
+    {
+        TTF_CloseFont(m_fontPtr);
+    }
 
     for (auto const &[key, mTexturePtr] : m_textureCache)
     {
@@ -99,9 +111,7 @@ SDL_Texture *SimpleEngine::Graphics::CreateSDLTexture(const std::string &p_asset
         throw std::runtime_error("[SDLGraphics] Error creating texture from asset: " + p_assetPath + ". " + error);
     }
     SDL_FreeSurface(surfacePtr);
-
     m_textureCache[p_assetPath] = texturePtr;
-
     return texturePtr;
 }
 
@@ -113,6 +123,28 @@ SDL_Texture *SimpleEngine::Graphics::GetSDLTextureForAssetName(const std::string
         return it->second;
     }
     return CreateSDLTexture(p_assetPath);
+}
+
+TTF_Font *SimpleEngine::Graphics::CreateTTFFont(const std::string &p_assetPath, const uint32_t p_ptsize)
+{
+    TTF_Font *fontPtr = TTF_OpenFont(p_assetPath.c_str(), p_ptsize);
+    if (!fontPtr)
+    {
+        std::string error = IMG_GetError();
+        throw std::runtime_error("[SDLGraphics] Error creating font from asset: " + p_assetPath + ". " + error);
+    }
+    m_fontCache[p_assetPath] = fontPtr;
+    return fontPtr;
+}
+
+TTF_Font *SimpleEngine::Graphics::GetTTFFontForAssetName(const std::string &p_assetPath)
+{
+    auto it = m_fontCache.find(p_assetPath);
+    if (it != m_fontCache.end())
+    {
+        return it->second;
+    }
+    return CreateTTFFont(p_assetPath, 32);
 }
 
 void SimpleEngine::Graphics::RenderSprite(const RenderingUnit &p_renderingUnitRef)
