@@ -15,7 +15,6 @@ void SimpleEngine::CounterService::UnregisterForUpdates(Counter *p_counterVarian
 {
     int32_t index = GetCounterIndexIfExists(p_counterVariantPtr);
     assert(index > -1);
-
     m_counters.erase(m_counters.begin() + index);
 }
 
