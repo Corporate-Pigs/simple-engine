@@ -180,8 +180,8 @@ void SimpleEngine::Graphics::RenderSprite(const RenderingUnit &p_renderingUnitRe
                 int ty = modifier.m_atlas.m_spriteIndex / modifier.m_atlas.m_numberOfColumns * th;
                 atlasRect = {tx, ty, tw, th};
                 atlasRectPtr = &atlasRect;
-                screenRect.w = tw;
-                screenRect.h = th;
+                screenRect.w = tw * p_renderingUnitRef.m_transform.m_scale.x;
+                screenRect.h = th * p_renderingUnitRef.m_transform.m_scale.y;
             }
             break;
             default:
