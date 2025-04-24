@@ -4,6 +4,7 @@
 #include <SDL_ttf.h>
 
 #include <cassert>
+#include <stdexcept>
 
 // Public functions
 void SimpleEngine::Graphics::DrawLabel(const Label &p_label, const Transform &p_transform)

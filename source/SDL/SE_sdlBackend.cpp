@@ -33,12 +33,18 @@ void SimpleEngine::Backend::Start()
         throw std::runtime_error("[SDLBackend] Error creating SDL window: " + error);
     }
 
+    m_sound.Start();
     m_graphics.Start(m_windowPtr);
     m_isRunning = true;
 }
 
 void SimpleEngine::Backend::Update()
 {
+    if (!m_isRunning)
+    {
+        return;
+    }
+
     uint32_t currentTime = SDL_GetTicks();
     m_elapsedTimeInSeconds = (currentTime - m_lastUpdateStart) / 1000.0f;  // seconds
     m_lastUpdateStart = currentTime;
@@ -60,6 +66,7 @@ void SimpleEngine::Backend::Update()
 void SimpleEngine::Backend::Cleanup()
 {
     m_graphics.Cleanup();
+    m_sound.Cleanup();
 
     SDL_DestroyWindow(m_windowPtr);
     SDL_Quit();

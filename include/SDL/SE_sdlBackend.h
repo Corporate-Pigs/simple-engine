@@ -8,6 +8,7 @@
 
 #include "SDL/SE_sdlGraphics.h"
 #include "SDL/SE_sdlInput.h"
+#include "SDL/SE_sdlSound.h"
 #include "SE_sprite.h"
 
 namespace SimpleEngine
@@ -19,6 +20,7 @@ struct Backend
 
    public:
     Graphics m_graphics;
+    Sound m_sound;
     const double GetElapsedTime();
 
    protected:
