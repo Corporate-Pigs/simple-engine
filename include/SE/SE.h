@@ -4,11 +4,10 @@
 #include <cstdint>
 #include <string>
 
-#define SE_SDL_BACKEND
 #ifdef SE_SDL_BACKEND
-#include "SDL/SE_sdlBackend.h"
+#include "SE_sdlBackend.h"
 #elif defined(SE_SMT_BACKEND)
-#include "SE_NDSGraphics.h"
+#include "SE_smtBackend.h"
 #else
 #error "No backend selected!"
 #endif

@@ -1,4 +1,4 @@
-#include "SDL/SE_sdlGraphics.h"
+#include "SE_sdlGraphics.h"
 
 #include <SDL_image.h>
 #include <SDL_ttf.h>
@@ -61,12 +61,15 @@ void SimpleEngine::Graphics::Start(SDL_Window *p_windowPtr)
         std::string error = TTF_GetError();
         throw std::runtime_error("[SDLGraphics] Error initializing TTF: " + error);
     }
+
+    m_backgroundColor = {0, 0, 0, 255};
     m_wasInitiated = true;
 }
 
 void SimpleEngine::Graphics::Render()
 {
-    SDL_SetRenderDrawColor(m_rendererPtr, 0x55, 0x55, 0x55, 0xFF);
+    SDL_SetRenderDrawColor(m_rendererPtr, m_backgroundColor.r, m_backgroundColor.g, m_backgroundColor.b,
+                           m_backgroundColor.a);
     SDL_RenderClear(m_rendererPtr);
 
     RenderLayers();

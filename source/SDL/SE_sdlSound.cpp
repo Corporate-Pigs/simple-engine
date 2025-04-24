@@ -1,4 +1,4 @@
-#include "SDL/SE_sdlSound.h"
+#include "SE_sdlSound.h"
 
 #include <stdexcept>
 

@@ -10,29 +10,51 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Define asset path
 set(SE_ASSET_PATH ${CMAKE_CURRENT_SOURCE_DIR}/assets)
 
-# Define the source files
-file(GLOB_RECURSE ENGINE_SOURCES "source/*.cpp")
+set(SE_BACKEND "SDL")
 
-# Add the Engine library target
-add_library(simple-engine STATIC ${ENGINE_SOURCES})
+if(SE_BACKEND STREQUAL "SDL")
+    # Add SDL dependencies
+    set(BUILD_SHARED_LIBS OFF)
+    set(SDL2TTF_VENDORED ON)
+    set(SDL2MIXER_VENDORED ON)
+    add_subdirectory(vendor/SDL2)
+    add_subdirectory(vendor/SDL2_ttf)
+    add_subdirectory(vendor/SDL2_image)
+    add_subdirectory(vendor/SDL2_mixer)
 
-# Add SDL dependencies
-set(BUILD_SHARED_LIBS OFF)
-set(SDL2TTF_VENDORED ON)
-set(SDL2MIXER_VENDORED ON)
-add_subdirectory(vendor/SDL2)
-add_subdirectory(vendor/SDL2_ttf)
-add_subdirectory(vendor/SDL2_image)
-add_subdirectory(vendor/SDL2_mixer)
+    set(LINKED_LIBRARIES SDL2::SDL2-static SDL2::SDL2main SDL2_ttf::SDL2_ttf-static SDL2_image::SDL2_image-static SDL2_mixer::SDL2_mixer-static)
+    set(INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/include/SDL)
+    file(GLOB_RECURSE SOURCE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/source/SDL/*.cpp)
+    set(COMPILER_DEFINITIONS SE_SDL_BACKEND=1)
+
+elseif(SE_BACKEND STREQUAL "SMT")
+    # Add SMT dependencies
+
+    #set(LINKED_LIBRARIES )
+    set(INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/include/SMT)
+    file(GLOB_RECURSE SOURCE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/source/SMT/*.cpp)
+    set(COMPILER_DEFINITIONS SE_SMT_BACKEND=1)
+    
+    
+endif()
 
 # Add other dependencies
 add_subdirectory(vendor/cppvec)
 
+# Define the source files
+file(GLOB_RECURSE ENGINE_SOURCES source/SE/*.cpp)
+
+# Add the Engine library target
+add_library(simple-engine STATIC ${ENGINE_SOURCES} ${SOURCE_DIRECTORIES})
+
 # Specify include directories for the Engine library
-target_include_directories(simple-engine PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(simple-engine PUBLIC ${INCLUDE_DIRECTORIES} ${CMAKE_CURRENT_SOURCE_DIR}/include/SE)
 
 # Specify private include directories for the Engine library
 target_include_directories(simple-engine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/source)
 
 # Link libraries to Engine
-target_link_libraries(simple-engine PUBLIC SDL2::SDL2-static SDL2::SDL2main SDL2_ttf::SDL2_ttf-static SDL2_image::SDL2_image-static SDL2_mixer::SDL2_mixer-static cppvec)
+target_link_libraries(simple-engine PUBLIC ${LINKED_LIBRARIES} cppvec)
+
+# Compiler definitions
+target_compile_definitions(simple-engine PUBLIC ${COMPILER_DEFINITIONS})

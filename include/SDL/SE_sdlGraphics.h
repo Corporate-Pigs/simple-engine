@@ -23,6 +23,7 @@ struct Graphics
     friend class Backend;
 
    public:
+    Color m_backgroundColor;
     void DrawLabel(const Label &p_label, const Transform &p_transform);
     void DrawSprite(const Sprite &p_sprite, const Transform &p_transform);
 

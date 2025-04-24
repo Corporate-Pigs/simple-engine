@@ -1,4 +1,4 @@
-#include "SDL/SE_sdlBackend.h"
+#include "SE_sdlBackend.h"
 
 #include <stdexcept>
 #include <string>
