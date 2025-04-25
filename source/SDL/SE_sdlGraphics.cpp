@@ -30,7 +30,7 @@ void SimpleEngine::Graphics::DrawLabel(const Label &p_label, const Transform &p_
     RenderingUnit ru = {RenderingUnit::Type::LABEL,
                         {p_transform.m_layer, p_transform.m_position,
                          p_transform.m_scale * (static_cast<float>(p_label.c_font_ptsize) / k_defaultFontPtSize),
-                         p_transform.m_radians},
+                         p_transform.m_rotationInRadians},
                         texturePtr};
     layerRef.emplace_back(ru);
 }
@@ -170,7 +170,7 @@ SDL_FRect SimpleEngine::Graphics::ComputeScreenRectForRenderingUnit(const Render
     }
 
     Transform t = p_renderingUnitRef.m_transform;
-    t.RotateAroundPoint({m_camera.m_position + (m_camera.m_scale * 0.5f)}, m_camera.m_radians);
+    t.RotateAroundPoint({m_camera.m_position + (m_camera.m_scale * 0.5f)}, m_camera.m_rotationInRadians);
 
     t.m_position -= m_camera.m_position;
     t.m_scale.x *= w;
@@ -244,7 +244,10 @@ void SimpleEngine::Graphics::RenderSprite(const RenderingUnit &p_renderingUnitRe
         }
     }
 
-    double screenRectRotationDegrees = p_renderingUnitRef.m_transform.m_radians + m_camera.m_radians * (180.0 / M_PI);
+    screenRect.x -= screenRect.w * p_renderingUnitRef.m_transform.m_anchor.x;
+    screenRect.y -= screenRect.h * p_renderingUnitRef.m_transform.m_anchor.y;
+
+    double screenRectRotationDegrees = p_renderingUnitRef.m_transform.m_rotationInRadians + m_camera.m_rotationInRadians * (180.0 / M_PI);
     if (SDL_RenderCopyExF(m_rendererPtr, texturePtr, atlasRectPtr, &screenRect, screenRectRotationDegrees, NULL,
                           SDL_FLIP_NONE))
     {
