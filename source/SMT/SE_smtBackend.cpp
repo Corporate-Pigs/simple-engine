@@ -1,5 +1,8 @@
 #include "SE_smtBackend.h"
 
+#include <smt/smt.h>
+#include <smt/window.h>
+
 #include <stdexcept>
 #include <string>
 
@@ -18,7 +21,7 @@ const double SimpleEngine::Backend::GetElapsedTime() { return m_elapsedTimeInSec
 // Private Functions
 void SimpleEngine::Backend::Start()
 {
-   
+    smtWindowOpen(m_windowWidth, m_windowHeight, m_windowTitle.c_str());
     m_isRunning = true;
 }
 
@@ -29,9 +32,11 @@ void SimpleEngine::Backend::Update()
         return;
     }
 
+    smtWindowUpdate();
+    m_isRunning = smtWindowShouldClose() == SMT_FALSE;
 }
 
 void SimpleEngine::Backend::Cleanup()
 {
-
+    smtWindowClose();
 }

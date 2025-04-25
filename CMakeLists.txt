@@ -29,12 +29,12 @@ if(SE_BACKEND STREQUAL "SDL")
 
 elseif(SE_BACKEND STREQUAL "SMT")
     # Add SMT dependencies
+    add_subdirectory(vendor/SMT)
 
-    #set(LINKED_LIBRARIES )
+    set(LINKED_LIBRARIES smt)
     set(INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/include/SMT)
     file(GLOB_RECURSE SOURCE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/source/SMT/*.cpp)
     set(COMPILER_DEFINITIONS SE_SMT_BACKEND=1)
-    
     
 endif()
 
