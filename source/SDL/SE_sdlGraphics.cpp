@@ -246,10 +246,13 @@ void SimpleEngine::Graphics::RenderSprite(const RenderingUnit &p_renderingUnitRe
 
     screenRect.x -= screenRect.w * p_renderingUnitRef.m_transform.m_anchor.x;
     screenRect.y -= screenRect.h * p_renderingUnitRef.m_transform.m_anchor.y;
+    const SDL_FPoint rotationPoint = {screenRect.w * p_renderingUnitRef.m_transform.m_anchor.x,
+                                      screenRect.h * p_renderingUnitRef.m_transform.m_anchor.y};
 
-    double screenRectRotationDegrees = p_renderingUnitRef.m_transform.m_rotationInRadians + m_camera.m_rotationInRadians * (180.0 / M_PI);
-    if (SDL_RenderCopyExF(m_rendererPtr, texturePtr, atlasRectPtr, &screenRect, screenRectRotationDegrees, NULL,
-                          SDL_FLIP_NONE))
+    double screenRectRotationDegrees =
+        p_renderingUnitRef.m_transform.m_rotationInRadians + m_camera.m_rotationInRadians * (180.0 / M_PI);
+    if (SDL_RenderCopyExF(m_rendererPtr, texturePtr, atlasRectPtr, &screenRect, screenRectRotationDegrees,
+                          &rotationPoint, SDL_FLIP_NONE))
     {
         std::string error = SDL_GetError();
         throw std::runtime_error("[SDLGraphics] Error while render copy exF: " + error);
