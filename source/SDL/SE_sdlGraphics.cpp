@@ -7,6 +7,12 @@
 #include <stdexcept>
 
 // Public functions
+SimpleEngine::Graphics::Graphics(const uint16_t p_windowWidth, const uint16_t p_windowHeight)
+    : m_backgroundColor({0, 0, 0, 255}),
+      m_camera({0, {0.0f, 0.0f}, {static_cast<float>(p_windowWidth), static_cast<float>(p_windowHeight)}, 0.0f})
+{
+}
+
 void SimpleEngine::Graphics::DrawLabel(const Label &p_label, const Transform &p_transform)
 {
     TTF_Font *fontPtr = GetTTFFontForAssetName(p_label.c_font_asset);
@@ -24,7 +30,7 @@ void SimpleEngine::Graphics::DrawLabel(const Label &p_label, const Transform &p_
     RenderingUnit ru = {RenderingUnit::Type::LABEL,
                         {p_transform.m_layer, p_transform.m_position,
                          p_transform.m_scale * (static_cast<float>(p_label.c_font_ptsize) / k_defaultFontPtSize),
-                         p_transform.m_rotation},
+                         p_transform.m_radians},
                         texturePtr};
     layerRef.emplace_back(ru);
 }
@@ -61,8 +67,6 @@ void SimpleEngine::Graphics::Start(SDL_Window *p_windowPtr)
         std::string error = TTF_GetError();
         throw std::runtime_error("[SDLGraphics] Error initializing TTF: " + error);
     }
-
-    m_backgroundColor = {0, 0, 0, 255};
     m_wasInitiated = true;
 }
 
@@ -153,7 +157,7 @@ TTF_Font *SimpleEngine::Graphics::GetTTFFontForAssetName(const std::string &p_as
     return CreateTTFFont(p_assetPath, k_defaultFontPtSize);
 }
 
-void SimpleEngine::Graphics::RenderSprite(const RenderingUnit &p_renderingUnitRef)
+SDL_FRect SimpleEngine::Graphics::ComputeScreenRectForRenderingUnit(const RenderingUnit &p_renderingUnitRef)
 {
     SDL_Texture *texturePtr = p_renderingUnitRef.m_item.m_texture;
     assert(texturePtr);
@@ -165,10 +169,22 @@ void SimpleEngine::Graphics::RenderSprite(const RenderingUnit &p_renderingUnitRe
         throw std::runtime_error("[SDLGraphics] Error query texture: " + error);
     }
 
-    SDL_FRect screenRect = {p_renderingUnitRef.m_transform.m_position.x, p_renderingUnitRef.m_transform.m_position.y,
-                            static_cast<float>(w) * p_renderingUnitRef.m_transform.m_scale.x,
-                            static_cast<float>(h) * p_renderingUnitRef.m_transform.m_scale.y};
+    Transform t = p_renderingUnitRef.m_transform;
+    t.RotateAroundPoint({m_camera.m_position + (m_camera.m_scale * 0.5f)}, m_camera.m_radians);
 
+    t.m_position -= m_camera.m_position;
+    t.m_scale.x *= w;
+    t.m_scale.y *= h;
+
+    return {t.m_position.x, t.m_position.y, t.m_scale.x, t.m_scale.y};
+}
+
+void SimpleEngine::Graphics::RenderSprite(const RenderingUnit &p_renderingUnitRef)
+{
+    SDL_Texture *texturePtr = p_renderingUnitRef.m_item.m_texture;
+    assert(texturePtr);
+
+    SDL_FRect screenRect = ComputeScreenRectForRenderingUnit(p_renderingUnitRef);
     SDL_Rect *atlasRectPtr = NULL;
     SDL_Rect atlasRect;
 
@@ -181,8 +197,8 @@ void SimpleEngine::Graphics::RenderSprite(const RenderingUnit &p_renderingUnitRe
         {
             case Modifier::Type::ATLAS:
             {
-                int tw = w / modifier.m_atlas.m_numberOfColumns;
-                int th = h / modifier.m_atlas.m_numberOfRows;
+                int tw = screenRect.w / p_renderingUnitRef.m_transform.m_scale.x / modifier.m_atlas.m_numberOfColumns;
+                int th = screenRect.h / p_renderingUnitRef.m_transform.m_scale.y / modifier.m_atlas.m_numberOfRows;
                 int tx = modifier.m_atlas.m_spriteIndex % modifier.m_atlas.m_numberOfColumns * tw;
                 int ty = modifier.m_atlas.m_spriteIndex / modifier.m_atlas.m_numberOfColumns * th;
                 atlasRect = {tx, ty, tw, th};
@@ -222,15 +238,15 @@ void SimpleEngine::Graphics::RenderSprite(const RenderingUnit &p_renderingUnitRe
                 SDL_SetTextureAlphaMod(texturePtr, modifier.m_alpha);
                 break;
             }
-
             case Modifier::Type::UNDEFINED:
             default:
                 assert(false);
         }
     }
 
-    if (SDL_RenderCopyExF(m_rendererPtr, texturePtr, atlasRectPtr, &screenRect,
-                          p_renderingUnitRef.m_transform.m_rotation, NULL, SDL_FLIP_NONE))
+    double screenRectRotationDegrees = p_renderingUnitRef.m_transform.m_radians + m_camera.m_radians * (180.0 / M_PI);
+    if (SDL_RenderCopyExF(m_rendererPtr, texturePtr, atlasRectPtr, &screenRect, screenRectRotationDegrees, NULL,
+                          SDL_FLIP_NONE))
     {
         std::string error = SDL_GetError();
         throw std::runtime_error("[SDLGraphics] Error while render copy exF: " + error);

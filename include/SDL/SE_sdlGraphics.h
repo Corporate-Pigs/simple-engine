@@ -23,7 +23,9 @@ struct Graphics
     friend class Backend;
 
    public:
+    Graphics(uint16_t p_windowWidth, uint16_t p_windowHeight);
     Color m_backgroundColor;
+    Transform m_camera;
     void DrawLabel(const Label &p_label, const Transform &p_transform);
     void DrawSprite(const Sprite &p_sprite, const Transform &p_transform);
 
@@ -56,6 +58,7 @@ struct Graphics
     TTF_Font *CreateTTFFont(const std::string &p_assetPath, const uint32_t p_ptsize);
     SDL_Texture *GetSDLTextureForAssetName(const std::string &p_assetPath);
     TTF_Font *GetTTFFontForAssetName(const std::string &p_assetPath);
+    SDL_FRect ComputeScreenRectForRenderingUnit(const RenderingUnit &p_renderingUnitRef);
 
     void RenderSprite(const RenderingUnit &p_renderingUnitRef);
     void RenderLabel(const RenderingUnit &p_renderingUnitRef);

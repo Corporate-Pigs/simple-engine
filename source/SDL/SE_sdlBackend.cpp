@@ -10,7 +10,8 @@ SimpleEngine::Backend::Backend(const std::string &p_windowTitle, uint16_t p_wind
       m_windowHeight(p_windowHeight),
       m_isRunning(false),
       m_elapsedTimeInSeconds(0),
-      m_lastUpdateStart(0)
+      m_lastUpdateStart(0),
+      m_graphics(p_windowWidth, p_windowHeight)
 {
 }
 
