@@ -17,6 +17,13 @@ struct AtlasModifierData
 struct ColorModifierData
 {
     Color m_color;
+    enum class Type {
+        UNDEFINED = 0,
+        BLEND,
+        ADD,
+        MOD,
+        MUL,
+    } m_type;
 };
 
 struct Modifier
@@ -25,12 +32,14 @@ struct Modifier
         UNDEFINED = 0,
         ATLAS,
         COLOR,
+        ALPHA
     } m_type;
 
     const union
     {
         AtlasModifierData m_atlas;
         ColorModifierData m_color;
+        float m_alpha;
     };
 };
 

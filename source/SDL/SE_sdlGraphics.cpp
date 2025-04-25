@@ -172,6 +172,9 @@ void SimpleEngine::Graphics::RenderSprite(const RenderingUnit &p_renderingUnitRe
     SDL_Rect *atlasRectPtr = NULL;
     SDL_Rect atlasRect;
 
+    SDL_SetTextureColorMod(texturePtr, 255, 255, 255);
+    SDL_SetTextureAlphaMod(texturePtr, 255);
+
     for (const auto modifier : p_renderingUnitRef.m_modifiers)
     {
         switch (modifier.m_type)
@@ -186,8 +189,41 @@ void SimpleEngine::Graphics::RenderSprite(const RenderingUnit &p_renderingUnitRe
                 atlasRectPtr = &atlasRect;
                 screenRect.w = tw * p_renderingUnitRef.m_transform.m_scale.x;
                 screenRect.h = th * p_renderingUnitRef.m_transform.m_scale.y;
+                break;
             }
-            break;
+            case Modifier::Type::COLOR:
+            {
+                SDL_SetTextureColorMod(texturePtr, modifier.m_color.m_color.r, modifier.m_color.m_color.g,
+                                       modifier.m_color.m_color.b);
+                SDL_BlendMode blendMode = SDL_BLENDMODE_NONE;
+                switch (modifier.m_color.m_type)
+                {
+                    case ColorModifierData::Type::ADD:
+                        blendMode = SDL_BLENDMODE_ADD;
+                        break;
+                    case ColorModifierData::Type::BLEND:
+                        blendMode = SDL_BLENDMODE_BLEND;
+                        break;
+                    case ColorModifierData::Type::MOD:
+                        blendMode = SDL_BLENDMODE_MOD;
+                        break;
+                    case ColorModifierData::Type::MUL:
+                        blendMode = SDL_BLENDMODE_MUL;
+                        break;
+                    case ColorModifierData::Type::UNDEFINED:
+                    default:
+                        assert(false);
+                }
+                SDL_SetTextureBlendMode(texturePtr, blendMode);
+                break;
+            }
+            case Modifier::Type::ALPHA:
+            {
+                SDL_SetTextureAlphaMod(texturePtr, modifier.m_alpha);
+                break;
+            }
+
+            case Modifier::Type::UNDEFINED:
             default:
                 assert(false);
         }
