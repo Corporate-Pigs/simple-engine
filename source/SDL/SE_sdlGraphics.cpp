@@ -211,6 +211,7 @@ void SimpleEngine::Graphics::RenderSprite(const RenderingUnit &p_renderingUnitRe
             {
                 SDL_SetTextureColorMod(texturePtr, modifier.m_color.m_color.r, modifier.m_color.m_color.g,
                                        modifier.m_color.m_color.b);
+                
                 SDL_BlendMode blendMode = SDL_BLENDMODE_NONE;
                 switch (modifier.m_color.m_type)
                 {

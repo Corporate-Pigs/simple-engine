@@ -20,7 +20,6 @@ struct Backend
    public:
     Graphics m_graphics;
     Sound m_sound;
-    const double GetElapsedTime();
 
    protected:
     bool m_isRunning;
@@ -30,7 +29,7 @@ struct Backend
     Backend(const std::string &p_windowTitle, uint16_t p_windowWidth, uint16_t p_windowHeight);
 
     SDL_Window *m_windowPtr;
-    const std::string m_windowTitle;
+    std::string m_windowTitle;
     const uint16_t m_windowWidth;
     const uint16_t m_windowHeight;
     uint32_t m_lastUpdateStart;
@@ -38,6 +37,7 @@ struct Backend
     void Start();
     void Update();
     void Cleanup();
+    const double GetElapsedTime();
 };
 
 }  // namespace SimpleEngine

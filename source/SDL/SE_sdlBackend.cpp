@@ -50,6 +50,9 @@ void SimpleEngine::Backend::Update()
     m_elapsedTimeInSeconds = (currentTime - m_lastUpdateStart) / 1000.0f;  // seconds
     m_lastUpdateStart = currentTime;
 
+    // double fps = 1 / m_elapsedTimeInSeconds;
+    // printf("%f\n", fps);
+
     SDL_Event event;
     while (SDL_PollEvent(&event) != 0)
     {

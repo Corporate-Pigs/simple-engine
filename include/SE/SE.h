@@ -28,7 +28,7 @@ class Game
     Backend m_backend;
 
     virtual void Start() = 0;
-    virtual void Update() = 0;
+    virtual void Update(const double p_elapsedTimeInSeconds) = 0;
     virtual void Cleanup() = 0;
 
    private:
