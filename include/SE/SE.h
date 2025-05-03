@@ -8,6 +8,8 @@
 #include "SE_sdlBackend.h"
 #elif defined(SE_SMT_BACKEND)
 #include "SE_smtBackend.h"
+#elif defined(SE_GBA_BACKEND)
+#include "SE_gbaBackend.h"
 #else
 #error "No backend selected!"
 #endif

@@ -10,7 +10,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Define asset path
 set(SE_ASSET_PATH ${CMAKE_CURRENT_SOURCE_DIR}/assets)
 
-set(SE_BACKEND "SDL")
+set(SE_BACKEND "GBA")
 
 if(SE_BACKEND STREQUAL "SDL")
     # Add SDL dependencies
@@ -35,7 +35,16 @@ elseif(SE_BACKEND STREQUAL "SMT")
     set(INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/include/SMT)
     file(GLOB_RECURSE SOURCE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/source/SMT/*.cpp)
     set(COMPILER_DEFINITIONS SE_SMT_BACKEND=1)
-    
+
+elseif(SE_BACKEND STREQUAL "GBA")
+    # Add SMT dependencies
+    # add_subdirectory(vendor/SMT)
+
+    set(LINKED_LIBRARIES)
+    set(INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/include/GBA)
+    file(GLOB_RECURSE SOURCE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/source/GBA/*.cpp)
+    set(COMPILER_DEFINITIONS SE_GBA_BACKEND=1)
+
 endif()
 
 # Add other dependencies
