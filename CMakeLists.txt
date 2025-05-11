@@ -40,6 +40,7 @@ endif()
 
 # Add other dependencies
 add_subdirectory(vendor/cppvec)
+add_subdirectory(vendor/tiled)
 
 # Define the source files
 file(GLOB_RECURSE ENGINE_SOURCES source/SE/*.cpp)
@@ -54,7 +55,7 @@ target_include_directories(simple-engine PUBLIC ${INCLUDE_DIRECTORIES} ${CMAKE_C
 target_include_directories(simple-engine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/source)
 
 # Link libraries to Engine
-target_link_libraries(simple-engine PUBLIC ${LINKED_LIBRARIES} cppvec)
+target_link_libraries(simple-engine PUBLIC ${LINKED_LIBRARIES} cppvec tiled)
 
 # Compiler definitions
 target_compile_definitions(simple-engine PUBLIC ${COMPILER_DEFINITIONS})

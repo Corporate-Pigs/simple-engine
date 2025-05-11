@@ -47,6 +47,21 @@ void SimpleEngine::Graphics::DrawSprite(const Sprite &p_sprite, const Transform 
     layerRef.emplace_back(ru);
 }
 
+void SimpleEngine::Graphics::DrawTileMap(const TileMap &p_tileMap, const Transform &p_transform)
+{
+    for (uint32_t layerIndex = 0; layerIndex < p_tileMap.m_layers.size(); layerIndex++)
+    {
+        const TileLayer &layer = p_tileMap.m_layers[layerIndex];
+
+        for (uint32_t tileIndex = 0; tileIndex < layer.m_tiles.size(); tileIndex++)
+        {
+            const Tile &tile = layer.m_tiles[tileIndex];
+            DrawSprite(tile.m_sprite, {p_transform.m_layer + layerIndex, p_transform.m_position + tile.m_offset,
+                                       p_transform.m_scale, tile.m_rotationInRadians, p_transform.m_anchor});
+        }
+    }
+}
+
 void SimpleEngine::Graphics::Start(SDL_Window *p_windowPtr)
 {
     m_rendererPtr = SDL_CreateRenderer(p_windowPtr, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
@@ -187,6 +202,7 @@ void SimpleEngine::Graphics::RenderSprite(const RenderingUnit &p_renderingUnitRe
     SDL_FRect screenRect = ComputeScreenRectForRenderingUnit(p_renderingUnitRef);
     SDL_Rect *atlasRectPtr = NULL;
     SDL_Rect atlasRect;
+    int flip = SDL_FLIP_NONE;
 
     SDL_SetTextureColorMod(texturePtr, 255, 255, 255);
     SDL_SetTextureAlphaMod(texturePtr, 255);
@@ -211,7 +227,7 @@ void SimpleEngine::Graphics::RenderSprite(const RenderingUnit &p_renderingUnitRe
             {
                 SDL_SetTextureColorMod(texturePtr, modifier.m_color.m_color.r, modifier.m_color.m_color.g,
                                        modifier.m_color.m_color.b);
-                
+
                 SDL_BlendMode blendMode = SDL_BLENDMODE_NONE;
                 switch (modifier.m_color.m_type)
                 {
@@ -239,6 +255,20 @@ void SimpleEngine::Graphics::RenderSprite(const RenderingUnit &p_renderingUnitRe
                 SDL_SetTextureAlphaMod(texturePtr, modifier.m_alpha);
                 break;
             }
+            case Modifier::Type::FLIP:
+            {
+                if (modifier.m_flip.m_horizontal)
+                {
+                    flip = flip | SDL_FLIP_HORIZONTAL;
+                }
+
+                if (modifier.m_flip.m_vertical)
+                {
+                    flip = flip | SDL_FLIP_VERTICAL;
+                }
+
+                break;
+            }
             case Modifier::Type::UNDEFINED:
             default:
                 assert(false);
@@ -251,9 +281,9 @@ void SimpleEngine::Graphics::RenderSprite(const RenderingUnit &p_renderingUnitRe
                                       screenRect.h * p_renderingUnitRef.m_transform.m_anchor.y};
 
     double screenRectRotationDegrees =
-        p_renderingUnitRef.m_transform.m_rotationInRadians + m_camera.m_rotationInRadians * (180.0 / M_PI);
+        (p_renderingUnitRef.m_transform.m_rotationInRadians + m_camera.m_rotationInRadians) * (180.0 / M_PI);
     if (SDL_RenderCopyExF(m_rendererPtr, texturePtr, atlasRectPtr, &screenRect, screenRectRotationDegrees,
-                          &rotationPoint, SDL_FLIP_NONE))
+                          NULL, static_cast<SDL_RendererFlip>(flip)))
     {
         std::string error = SDL_GetError();
         throw std::runtime_error("[SDLGraphics] Error while render copy exF: " + error);

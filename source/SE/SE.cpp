@@ -29,6 +29,7 @@ void SimpleEngine::Game::Run()
             lagTime -= k_updateStep;
         }
 
+        Render();
         m_backend.m_graphics.Render();
     }
 
