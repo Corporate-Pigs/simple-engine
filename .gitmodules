@@ -20,3 +20,6 @@
 	path = vendor/SMT
 	url = git@github.com:nflsilva/simple-media-toolkit.git
 	branch = develop
+[submodule "vendor/tiled"]
+	path = vendor/tiled
+	url = git@github.com:Corporate-Pigs/tiled.git
