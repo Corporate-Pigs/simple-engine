@@ -43,7 +43,45 @@ void SimpleEngine::Graphics::DrawSprite(const Sprite &p_sprite, const Transform 
     uint32_t layerIndex = p_transform.m_layer % k_maxLayers;
     std::vector<RenderingUnit> &layerRef = m_layers[layerIndex];
 
-    RenderingUnit ru = {RenderingUnit::Type::SPRITE, p_transform, texturePtr, p_sprite.m_modifiers};
+    RenderingUnit ru = {RenderingUnit::Type::SPRITE, p_transform, texturePtr, p_sprite};
+    layerRef.emplace_back(ru);
+}
+
+void SimpleEngine::Graphics::DrawTileMap(const TileMap &p_tileMap, const Transform &p_transform)
+{
+    for (uint32_t layerIndex = 0; layerIndex < p_tileMap.m_layers.size(); layerIndex++)
+    {
+        const TileLayer &layer = p_tileMap.m_layers[layerIndex];
+
+        for (uint32_t tileIndex = 0; tileIndex < layer.m_tiles.size(); tileIndex++)
+        {
+            const Tile &tile = layer.m_tiles[tileIndex];
+            if (tile.m_sprite.c_asset == "")
+            {
+                continue;
+            };
+            DrawSprite(tile.m_sprite, {p_transform.m_layer + layerIndex, p_transform.m_position + tile.m_offset,
+                                       p_transform.m_scale, tile.m_rotationInRadians, p_transform.m_anchor});
+#ifdef SE_DEBUG
+            for(const Event& event : tile.m_events) {
+                Rectangle rect{{255, 0, 0, 255}, {p_tileMap.m_TileWidth, p_tileMap.m_TileHeight}};
+                Label name{"../assets/font/lazy.ttf", 25, std::to_string(event.m_id), {255, 0, 0, 255}};
+                cppvec::Vec2<float> position = p_transform.m_position + tile.m_offset;
+                Transform t = {999, position, {1.0f, 1.0f}, 0.0f, {0.0f, 0.0f}};
+                DrawRectangle(rect, t);
+                DrawLabel(name, t);
+            }
+#endif
+        }
+    }
+}
+
+void SimpleEngine::Graphics::DrawRectangle(const Rectangle &p_rectangle, const Transform &p_transform)
+{
+    uint32_t layerIndex = p_transform.m_layer % k_maxLayers;
+    std::vector<RenderingUnit> &layerRef = m_layers[layerIndex];
+
+    RenderingUnit ru = {RenderingUnit::Type::RECTANGLE, p_transform, nullptr, {}, p_rectangle};
     layerRef.emplace_back(ru);
 }
 
@@ -159,14 +197,21 @@ TTF_Font *SimpleEngine::Graphics::GetTTFFontForAssetName(const std::string &p_as
 
 SDL_FRect SimpleEngine::Graphics::ComputeScreenRectForRenderingUnit(const RenderingUnit &p_renderingUnitRef)
 {
-    SDL_Texture *texturePtr = p_renderingUnitRef.m_item.m_texture;
-    assert(texturePtr);
-
     int w, h;
-    if (SDL_QueryTexture(texturePtr, NULL, NULL, &w, &h))
+    if (p_renderingUnitRef.m_type == RenderingUnit::Type::RECTANGLE)
     {
-        std::string error = SDL_GetError();
-        throw std::runtime_error("[SDLGraphics] Error query texture: " + error);
+        w = static_cast<int>(p_renderingUnitRef.m_rectangle.m_size.x);
+        h = static_cast<int>(p_renderingUnitRef.m_rectangle.m_size.y);
+    }
+    else
+    {
+        SDL_Texture *texturePtr = p_renderingUnitRef.m_texturePtr;
+        assert(texturePtr);
+        if (SDL_QueryTexture(texturePtr, NULL, NULL, &w, &h))
+        {
+            std::string error = SDL_GetError();
+            throw std::runtime_error("[SDLGraphics] Error query texture: " + error);
+        }
     }
 
     Transform t = p_renderingUnitRef.m_transform;
@@ -181,17 +226,18 @@ SDL_FRect SimpleEngine::Graphics::ComputeScreenRectForRenderingUnit(const Render
 
 void SimpleEngine::Graphics::RenderSprite(const RenderingUnit &p_renderingUnitRef)
 {
-    SDL_Texture *texturePtr = p_renderingUnitRef.m_item.m_texture;
+    SDL_Texture *texturePtr = p_renderingUnitRef.m_texturePtr;
     assert(texturePtr);
 
     SDL_FRect screenRect = ComputeScreenRectForRenderingUnit(p_renderingUnitRef);
     SDL_Rect *atlasRectPtr = NULL;
     SDL_Rect atlasRect;
+    int flip = SDL_FLIP_NONE;
 
     SDL_SetTextureColorMod(texturePtr, 255, 255, 255);
     SDL_SetTextureAlphaMod(texturePtr, 255);
 
-    for (const auto modifier : p_renderingUnitRef.m_modifiers)
+    for (const auto modifier : p_renderingUnitRef.m_sprite.m_modifiers)
     {
         switch (modifier.m_type)
         {
@@ -211,7 +257,7 @@ void SimpleEngine::Graphics::RenderSprite(const RenderingUnit &p_renderingUnitRe
             {
                 SDL_SetTextureColorMod(texturePtr, modifier.m_color.m_color.r, modifier.m_color.m_color.g,
                                        modifier.m_color.m_color.b);
-                
+
                 SDL_BlendMode blendMode = SDL_BLENDMODE_NONE;
                 switch (modifier.m_color.m_type)
                 {
@@ -239,6 +285,20 @@ void SimpleEngine::Graphics::RenderSprite(const RenderingUnit &p_renderingUnitRe
                 SDL_SetTextureAlphaMod(texturePtr, modifier.m_alpha);
                 break;
             }
+            case Modifier::Type::FLIP:
+            {
+                if (modifier.m_flip.m_horizontal)
+                {
+                    flip = flip | SDL_FLIP_HORIZONTAL;
+                }
+
+                if (modifier.m_flip.m_vertical)
+                {
+                    flip = flip | SDL_FLIP_VERTICAL;
+                }
+
+                break;
+            }
             case Modifier::Type::UNDEFINED:
             default:
                 assert(false);
@@ -251,9 +311,9 @@ void SimpleEngine::Graphics::RenderSprite(const RenderingUnit &p_renderingUnitRe
                                       screenRect.h * p_renderingUnitRef.m_transform.m_anchor.y};
 
     double screenRectRotationDegrees =
-        p_renderingUnitRef.m_transform.m_rotationInRadians + m_camera.m_rotationInRadians * (180.0 / M_PI);
-    if (SDL_RenderCopyExF(m_rendererPtr, texturePtr, atlasRectPtr, &screenRect, screenRectRotationDegrees,
-                          &rotationPoint, SDL_FLIP_NONE))
+        (p_renderingUnitRef.m_transform.m_rotationInRadians + m_camera.m_rotationInRadians) * (180.0 / M_PI);
+    if (SDL_RenderCopyExF(m_rendererPtr, texturePtr, atlasRectPtr, &screenRect, screenRectRotationDegrees, NULL,
+                          static_cast<SDL_RendererFlip>(flip)))
     {
         std::string error = SDL_GetError();
         throw std::runtime_error("[SDLGraphics] Error while render copy exF: " + error);
@@ -263,7 +323,17 @@ void SimpleEngine::Graphics::RenderSprite(const RenderingUnit &p_renderingUnitRe
 void SimpleEngine::Graphics::RenderLabel(const RenderingUnit &p_renderingUnitRef)
 {
     RenderSprite(p_renderingUnitRef);
-    SDL_DestroyTexture(p_renderingUnitRef.m_item.m_texture);
+    SDL_DestroyTexture(p_renderingUnitRef.m_texturePtr);
+}
+
+void SimpleEngine::Graphics::RenderRectangle(const RenderingUnit &p_renderingUnitRef)
+{
+    SDL_SetRenderDrawColor(m_rendererPtr, p_renderingUnitRef.m_rectangle.m_color.r,
+                           p_renderingUnitRef.m_rectangle.m_color.g, p_renderingUnitRef.m_rectangle.m_color.b,
+                           p_renderingUnitRef.m_rectangle.m_color.a);
+
+    SDL_FRect screenRect = ComputeScreenRectForRenderingUnit(p_renderingUnitRef);
+    SDL_RenderDrawRectF(m_rendererPtr, &screenRect);
 }
 
 void SimpleEngine::Graphics::RenderLayers()
@@ -282,6 +352,9 @@ void SimpleEngine::Graphics::RenderLayers()
                     break;
                 case RenderingUnit::Type::LABEL:
                     RenderLabel(renderingUnitRef);
+                    break;
+                case RenderingUnit::Type::RECTANGLE:
+                    RenderRectangle(renderingUnitRef);
                     break;
                 case RenderingUnit::Type::UNDEFINED:
                 default:

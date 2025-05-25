@@ -8,7 +8,9 @@
 #include <vector>
 
 #include "SE_label.h"
+#include "SE_rectangle.h"
 #include "SE_sprite.h"
+#include "SE_tileMap.h"
 #include "SE_transform.h"
 
 static constexpr uint32_t k_maxLayers = 32;
@@ -28,18 +30,17 @@ struct Graphics
     Transform m_camera;
     void DrawLabel(const Label &p_label, const Transform &p_transform);
     void DrawSprite(const Sprite &p_sprite, const Transform &p_transform);
+    void DrawTileMap(const TileMap &p_tileMap, const Transform &p_transform);
+    void DrawRectangle(const Rectangle &p_rectangle, const Transform &p_transform);
 
    private:
     struct RenderingUnit
     {
-        const enum class Type { UNDEFINED = 0, SPRITE, LABEL } m_type;
+        const enum class Type { UNDEFINED = 0, SPRITE, LABEL, RECTANGLE } m_type;
         const Transform m_transform;
-        const union
-        {
-            SDL_Texture *m_texture;
-
-        } m_item;
-        std::vector<Modifier> m_modifiers;
+        SDL_Texture *m_texturePtr;
+        Sprite m_sprite;
+        Rectangle m_rectangle;
     };
 
     bool m_isRunning;
@@ -62,6 +63,7 @@ struct Graphics
 
     void RenderSprite(const RenderingUnit &p_renderingUnitRef);
     void RenderLabel(const RenderingUnit &p_renderingUnitRef);
+    void RenderRectangle(const RenderingUnit &p_renderingUnitRef);
     void RenderLayers();
 };
 

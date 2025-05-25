@@ -25,7 +25,7 @@ if(SE_BACKEND STREQUAL "SDL")
     set(LINKED_LIBRARIES SDL2::SDL2-static SDL2::SDL2main SDL2_ttf::SDL2_ttf-static SDL2_image::SDL2_image-static SDL2_mixer::SDL2_mixer-static)
     set(INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/include/SDL)
     file(GLOB_RECURSE SOURCE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/source/SDL/*.cpp)
-    set(COMPILER_DEFINITIONS SE_SDL_BACKEND=1)
+    set(COMPILER_DEFINITIONS SE_SDL_BACKEND=1 SE_DEBUG=1)
 
 elseif(SE_BACKEND STREQUAL "SMT")
     # Add SMT dependencies
@@ -34,12 +34,13 @@ elseif(SE_BACKEND STREQUAL "SMT")
     set(LINKED_LIBRARIES smt)
     set(INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/include/SMT)
     file(GLOB_RECURSE SOURCE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/source/SMT/*.cpp)
-    set(COMPILER_DEFINITIONS SE_SMT_BACKEND=1)
+    set(COMPILER_DEFINITIONS SE_SMT_BACKEND=1 SE_DEBUG=1)
     
 endif()
 
 # Add other dependencies
 add_subdirectory(vendor/cppvec)
+add_subdirectory(vendor/tiled)
 
 # Define the source files
 file(GLOB_RECURSE ENGINE_SOURCES source/SE/*.cpp)
@@ -54,7 +55,7 @@ target_include_directories(simple-engine PUBLIC ${INCLUDE_DIRECTORIES} ${CMAKE_C
 target_include_directories(simple-engine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/source)
 
 # Link libraries to Engine
-target_link_libraries(simple-engine PUBLIC ${LINKED_LIBRARIES} cppvec)
+target_link_libraries(simple-engine PUBLIC ${LINKED_LIBRARIES} cppvec tiled)
 
 # Compiler definitions
 target_compile_definitions(simple-engine PUBLIC ${COMPILER_DEFINITIONS})
