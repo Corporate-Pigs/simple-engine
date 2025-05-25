@@ -1,16 +1,18 @@
 #pragma once
 
-#include <string>
 #include <vector>
+#include <cppvec/vec2.h>
 
+#include "SE_color.h"
 #include "SE_modifier.h"
 
 namespace SimpleEngine
 {
 
-struct Sprite
+struct Rectangle
 {
-    std::string c_asset;
+    Color m_color;
+    cppvec::Vec2<uint32_t> m_size;
     std::vector<Modifier> m_modifiers;
 };
 

@@ -169,7 +169,7 @@ void SimpleEngine::Counter::UpdateState()
 
     m_timeSinceChange = 0;
     m_currentStateIndex++;
-    
+
     uint32_t *currentValuePtr = &m_currentValue;
     if (m_currentValuePtr != nullptr)
     {
@@ -187,8 +187,6 @@ void SimpleEngine::Counter::UpdateState()
         }
         m_done = true;
     }
-
-
 }
 
 void SimpleEngine::Counter::UpdateDelta()

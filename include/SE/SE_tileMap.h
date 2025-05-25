@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cppvec/vec2.h>
 #include <stdint.h>
 #include <tiled.h>
 
@@ -8,26 +9,35 @@
 #include <unordered_map>
 #include <variant>
 #include <vector>
-#include <cppvec/vec2.h>
 
-#include "SE_sprite.h"
 #include "SE_counter.h"
+#include "SE_sprite.h"
 
 namespace SimpleEngine
 {
 
+struct Property
+{
+    std::string m_name;
+    std::variant<bool, std::string> m_value;
+};
+
+struct Event
+{
+    uint32_t m_id;
+    std::string m_name;
+    std::string m_type;
+    std::vector<Property> m_properties;
+};
+
 struct Tile
 {
-    struct Property
-    {
-        std::string m_name;
-        std::variant<bool, std::string> m_value;
-    };
     cppvec::Vec2<float> m_offset;
     double m_rotationInRadians;
     Sprite m_sprite;
-    std::unique_ptr<Counter> m_counterPtr; 
-    std::vector<Tile::Property> m_properties;
+    std::shared_ptr<Counter> m_counterPtr;
+    std::vector<Event> m_events;
+    std::vector<Property> m_properties;
 };
 
 struct TileLayer
