@@ -4,6 +4,7 @@
 #include <SDL_image.h>
 #include <SDL_ttf.h>
 
+#include <set>
 #include <string>
 
 #include "SE_sdlGraphics.h"
@@ -20,6 +21,7 @@ struct Backend
    public:
     Graphics m_graphics;
     Sound m_sound;
+    bool IsPressingKey(const char c_key);
 
    protected:
     bool m_isRunning;
@@ -33,6 +35,7 @@ struct Backend
     const uint16_t m_windowWidth;
     const uint16_t m_windowHeight;
     uint32_t m_lastUpdateStart;
+    std::set<SDL_Keycode> m_pressedKeys;
 
     void Start();
     void Update();

@@ -127,6 +127,16 @@ int32_t SimpleEngine::Counter::GetIntValueFromCurrentState()
     }
 }
 
+void SimpleEngine::Counter::Set(const int32_t p_initialValue, const int32_t p_finalValue, const int32_t p_deltaValue,
+                                const double p_interval)
+{
+    m_initialValue = p_initialValue;
+    m_finalValue = p_finalValue;
+    m_deltaValue = p_deltaValue;
+    m_time = p_interval;
+    Reset();
+}
+
 void SimpleEngine::Counter::Reset()
 {
     m_done = false;
