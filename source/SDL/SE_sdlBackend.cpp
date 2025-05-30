@@ -49,6 +49,7 @@ void SimpleEngine::Backend::Update()
 
     UpdateWindowTitle();
 
+    m_pressedKeys.clear();
     SDL_Event event;
     while (SDL_PollEvent(&event) != 0)
     {
@@ -58,6 +59,15 @@ void SimpleEngine::Backend::Update()
                 m_isRunning = false;
                 break;
             default:
+                if (event.type == SDL_KEYDOWN)
+                {
+                    m_pressedKeys.insert(event.key.keysym.sym);
+                }
+
+                if (event.type == SDL_KEYUP)
+                {
+                    m_pressedKeys.erase(event.key.keysym.sym);
+                }
                 break;
         }
     }
@@ -71,6 +81,11 @@ void SimpleEngine::Backend::Cleanup()
     SDL_DestroyWindow(m_windowPtr);
     SDL_Quit();
     m_windowPtr = nullptr;
+}
+
+bool SimpleEngine::Backend::IsPressingKey(const char c_key)
+{
+    return m_pressedKeys.contains(static_cast<SDL_Keycode>(c_key));
 }
 
 void SimpleEngine::Backend::UpdateWindowTitle()
