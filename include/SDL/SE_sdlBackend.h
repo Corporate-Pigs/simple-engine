@@ -29,15 +29,18 @@ struct Backend
     Backend(const std::string &p_windowTitle, uint16_t p_windowWidth, uint16_t p_windowHeight);
 
     SDL_Window *m_windowPtr;
-    std::string m_windowTitle;
+    const std::string m_baseWindowTitle;
     const uint16_t m_windowWidth;
     const uint16_t m_windowHeight;
     uint32_t m_lastUpdateStart;
+    uint32_t m_framesPerSecond;
 
     void Start();
     void Update();
     void Cleanup();
     const double GetElapsedTime();
+
+    void UpdateWindowTitle();
 };
 
 }  // namespace SimpleEngine

@@ -26,9 +26,11 @@ class Game
 
    protected:
     Backend m_backend;
+    static constexpr double k_updateStep = 0.001;
 
     virtual void Start() = 0;
-    virtual void Update(const double p_elapsedTimeInSeconds) = 0;
+    virtual void Update() = 0;
+    virtual void Render() = 0;
     virtual void Cleanup() = 0;
 
    private:

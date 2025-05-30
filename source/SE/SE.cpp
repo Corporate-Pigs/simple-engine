@@ -1,9 +1,5 @@
 #include "SE.h"
 
-#include "SE_counterService.h"
-
-static constexpr double k_updateStep = 0.001;
-
 SimpleEngine::Game::Game(const Options& a_options)
     : m_backend(a_options.windowTitle, a_options.windowWidth, a_options.windowHeight)
 {
@@ -24,11 +20,10 @@ void SimpleEngine::Game::Run()
 
         lagTime += m_backend.GetElapsedTime();
         while (lagTime >= k_updateStep) {
-            CounterService::Instance().UpdateCounters(k_updateStep);
-            Update(k_updateStep);
+            Update();
             lagTime -= k_updateStep;
         }
-
+        Render();
         m_backend.m_graphics.Render();
     }
 

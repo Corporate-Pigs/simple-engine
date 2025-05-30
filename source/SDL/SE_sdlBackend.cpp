@@ -5,13 +5,14 @@
 
 SimpleEngine::Backend::Backend(const std::string &p_windowTitle, uint16_t p_windowWidth, uint16_t p_windowHeight)
     : m_windowPtr(nullptr),
-      m_windowTitle(p_windowTitle),
+      m_baseWindowTitle(p_windowTitle),
       m_windowWidth(p_windowWidth),
       m_windowHeight(p_windowHeight),
       m_isRunning(false),
       m_elapsedTimeInSeconds(0),
       m_lastUpdateStart(0),
-      m_graphics(p_windowWidth, p_windowHeight)
+      m_graphics(p_windowWidth, p_windowHeight),
+      m_framesPerSecond(0)
 {
 }
 
@@ -25,7 +26,7 @@ void SimpleEngine::Backend::Start()
         std::string error = SDL_GetError();
         throw std::runtime_error("[SDLBackend] Error initializing SDL backend: " + error);
     }
-    m_windowPtr = SDL_CreateWindow(m_windowTitle.c_str(),
+    m_windowPtr = SDL_CreateWindow(m_baseWindowTitle.c_str(),
                                    // TODO: pass these into options?
                                    100, 100, m_windowWidth, m_windowHeight, SDL_WINDOW_SHOWN);
     if (!m_windowPtr)
@@ -46,12 +47,7 @@ void SimpleEngine::Backend::Update()
         return;
     }
 
-    uint32_t currentTime = SDL_GetTicks();
-    m_elapsedTimeInSeconds = (currentTime - m_lastUpdateStart) / 1000.0f;  // seconds
-    m_lastUpdateStart = currentTime;
-
-    // double fps = 1 / m_elapsedTimeInSeconds;
-    // printf("%f\n", fps);
+    UpdateWindowTitle();
 
     SDL_Event event;
     while (SDL_PollEvent(&event) != 0)
@@ -75,4 +71,19 @@ void SimpleEngine::Backend::Cleanup()
     SDL_DestroyWindow(m_windowPtr);
     SDL_Quit();
     m_windowPtr = nullptr;
+}
+
+void SimpleEngine::Backend::UpdateWindowTitle()
+{
+    uint32_t currentTime = SDL_GetTicks();
+    m_elapsedTimeInSeconds = (currentTime - m_lastUpdateStart) / 1000.0f;
+    m_framesPerSecond++;
+
+    if (m_elapsedTimeInSeconds >= 1)
+    {
+        std::string windowTitle = m_baseWindowTitle + " - fps:" + std::to_string(m_framesPerSecond);
+        SDL_SetWindowTitle(m_windowPtr, windowTitle.c_str());
+        m_framesPerSecond = 0;
+        m_lastUpdateStart = currentTime;
+    }
 }
