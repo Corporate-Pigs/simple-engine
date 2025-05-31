@@ -12,7 +12,8 @@ SimpleEngine::Backend::Backend(const std::string &p_windowTitle, uint16_t p_wind
       m_elapsedTimeInSeconds(0),
       m_lastUpdateStart(0),
       m_graphics(p_windowWidth, p_windowHeight),
-      m_framesPerSecond(0)
+      m_framesPerSecond(0),
+      m_input()
 {
 }
 
@@ -47,9 +48,13 @@ void SimpleEngine::Backend::Update()
         return;
     }
 
-    UpdateWindowTitle();
+    uint32_t currentTime = SDL_GetTicks();
+    m_elapsedTimeInSeconds = (currentTime - m_lastUpdateStart) / 1000.0f;
 
-    m_pressedKeys.clear();
+    m_framesPerSecond++;
+
+    UpdateWindowTitle(currentTime);
+
     SDL_Event event;
     while (SDL_PollEvent(&event) != 0)
     {
@@ -58,16 +63,15 @@ void SimpleEngine::Backend::Update()
             case SDL_QUIT:
                 m_isRunning = false;
                 break;
+            case SDL_KEYDOWN:
+            case SDL_KEYUP:
+            case SDL_MOUSEMOTION:
+            case SDL_MOUSEBUTTONDOWN:
+            case SDL_MOUSEBUTTONUP:
+            case SDL_MOUSEWHEEL:
+                m_input.Update(event, m_elapsedTimeInSeconds);
+                break;
             default:
-                if (event.type == SDL_KEYDOWN)
-                {
-                    m_pressedKeys.insert(event.key.keysym.sym);
-                }
-
-                if (event.type == SDL_KEYUP)
-                {
-                    m_pressedKeys.erase(event.key.keysym.sym);
-                }
                 break;
         }
     }
@@ -83,17 +87,8 @@ void SimpleEngine::Backend::Cleanup()
     m_windowPtr = nullptr;
 }
 
-bool SimpleEngine::Backend::IsPressingKey(const char c_key)
+void SimpleEngine::Backend::UpdateWindowTitle(uint32_t currentTime)
 {
-    return m_pressedKeys.contains(static_cast<SDL_Keycode>(c_key));
-}
-
-void SimpleEngine::Backend::UpdateWindowTitle()
-{
-    uint32_t currentTime = SDL_GetTicks();
-    m_elapsedTimeInSeconds = (currentTime - m_lastUpdateStart) / 1000.0f;
-    m_framesPerSecond++;
-
     if (m_elapsedTimeInSeconds >= 1)
     {
         std::string windowTitle = m_baseWindowTitle + " - fps:" + std::to_string(m_framesPerSecond);
