@@ -9,6 +9,7 @@
 
 #include "SE_sdlGraphics.h"
 #include "SE_sdlSound.h"
+#include <SE_sdlInput.h>
 #include "SE_sprite.h"
 
 namespace SimpleEngine
@@ -21,8 +22,7 @@ struct Backend
    public:
     Graphics m_graphics;
     Sound m_sound;
-
-    bool IsPressingKey(const char c_key);
+    Input m_input;
 
    protected:
     bool m_isRunning;
@@ -37,14 +37,13 @@ struct Backend
     const uint16_t m_windowHeight;
     uint32_t m_lastUpdateStart;
     uint32_t m_framesPerSecond;
-    std::set<SDL_Keycode> m_pressedKeys;
 
     void Start();
     void Update();
     void Cleanup();
     const double GetElapsedTime();
 
-    void UpdateWindowTitle();
+    void UpdateWindowTitle(uint32_t currentTime);
 };
 
 }  // namespace SimpleEngine
