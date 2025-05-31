@@ -37,11 +37,12 @@ struct Backend
     const uint16_t m_windowHeight;
     uint32_t m_lastUpdateStart;
     uint32_t m_framesPerSecond;
+    double m_timeSinceTitleUpdate;
 
     void Start();
     void Update();
     void Cleanup();
-    const double GetElapsedTime();
+    const double UpdateElapsedTime();
 
     void UpdateWindowTitle(uint32_t currentTime);
 };

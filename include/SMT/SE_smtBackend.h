@@ -16,7 +16,7 @@ struct Backend
    public:
     Graphics m_graphics;
     Sound m_sound;
-    const double GetElapsedTime();
+    const double UpdateElapsedTime();
 
    protected:
     bool m_isRunning;

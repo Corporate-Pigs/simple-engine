@@ -12,11 +12,12 @@ SimpleEngine::Backend::Backend(const std::string &p_windowTitle, uint16_t p_wind
       m_windowHeight(p_windowHeight),
       m_isRunning(false),
       m_elapsedTimeInSeconds(0),
-      m_lastUpdateStart(0)
+      m_lastUpdateStart(0),
+      m_timeSinceTitleUpdate(0)
 {
 }
 
-const double SimpleEngine::Backend::GetElapsedTime() { return m_elapsedTimeInSeconds; }
+const double SimpleEngine::Backend::UpdateElapsedTime() { return m_elapsedTimeInSeconds; }
 
 // Private Functions
 void SimpleEngine::Backend::Start()
@@ -36,7 +37,4 @@ void SimpleEngine::Backend::Update()
     m_isRunning = smtWindowShouldClose() == SMT_FALSE;
 }
 
-void SimpleEngine::Backend::Cleanup()
-{
-    smtWindowClose();
-}
+void SimpleEngine::Backend::Cleanup() { smtWindowClose(); }

@@ -23,12 +23,11 @@ class Game
     Game(const Options& options);
     virtual ~Game() = default;
     void Run();
+    static constexpr double k_updateStep = 1.0 / 120.0;
 
     Backend m_backend;
 
    protected:
-    static constexpr double k_updateStep = 0.001;
-
     virtual void Start() = 0;
     virtual void Update() = 0;
     virtual void Render() = 0;

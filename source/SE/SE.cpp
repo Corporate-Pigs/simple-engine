@@ -1,5 +1,8 @@
 #include "SE.h"
 
+#include <iostream>
+#include <ostream>
+
 SimpleEngine::Game::Game(const Options& a_options)
     : m_backend(a_options.windowTitle, a_options.windowWidth, a_options.windowHeight)
 {
@@ -7,7 +10,8 @@ SimpleEngine::Game::Game(const Options& a_options)
 
 void SimpleEngine::Game::Run()
 {
-    if(m_backend.m_isRunning) {
+    if (m_backend.m_isRunning)
+    {
         assert(false);
     }
 
@@ -18,13 +22,20 @@ void SimpleEngine::Game::Run()
 
     while (m_backend.m_isRunning)
     {
-        m_backend.Update();
+        double elaspedTime = m_backend.UpdateElapsedTime();
+        lagTime += elaspedTime;
 
-        lagTime += m_backend.GetElapsedTime();
-        while (lagTime >= k_updateStep) {
+        m_backend.Update();
+        uint32_t updates = 0;
+        while (lagTime >= k_updateStep)
+        {
             Update();
             lagTime -= k_updateStep;
+            updates++;
         }
+        
+        //std::cout << elaspedTime << " : " << updates << std::endl;
+
         Render();
         m_backend.m_graphics.Render();
     }

@@ -17,7 +17,16 @@ SimpleEngine::Backend::Backend(const std::string &p_windowTitle, uint16_t p_wind
 {
 }
 
-const double SimpleEngine::Backend::GetElapsedTime() { return m_elapsedTimeInSeconds; }
+const double SimpleEngine::Backend::UpdateElapsedTime()
+{
+    uint32_t currentTime = SDL_GetTicks();
+    m_elapsedTimeInSeconds = (currentTime - m_lastUpdateStart) / 1000.0f;
+    m_lastUpdateStart = currentTime;
+    m_framesPerSecond = 1 / m_elapsedTimeInSeconds;
+
+    UpdateWindowTitle(currentTime);
+    return m_elapsedTimeInSeconds;
+}
 
 // Private Functions
 void SimpleEngine::Backend::Start()
@@ -47,13 +56,6 @@ void SimpleEngine::Backend::Update()
     {
         return;
     }
-
-    uint32_t currentTime = SDL_GetTicks();
-    m_elapsedTimeInSeconds = (currentTime - m_lastUpdateStart) / 1000.0f;
-
-    m_framesPerSecond++;
-
-    UpdateWindowTitle(currentTime);
 
     SDL_Event event;
     while (SDL_PollEvent(&event) != 0)
@@ -89,11 +91,11 @@ void SimpleEngine::Backend::Cleanup()
 
 void SimpleEngine::Backend::UpdateWindowTitle(uint32_t currentTime)
 {
-    if (m_elapsedTimeInSeconds >= 1)
+    m_timeSinceTitleUpdate += m_elapsedTimeInSeconds;
+    if (m_timeSinceTitleUpdate >= 1)
     {
         std::string windowTitle = m_baseWindowTitle + " - fps:" + std::to_string(m_framesPerSecond);
         SDL_SetWindowTitle(m_windowPtr, windowTitle.c_str());
-        m_framesPerSecond = 0;
-        m_lastUpdateStart = currentTime;
+        m_timeSinceTitleUpdate = 0;
     }
 }
