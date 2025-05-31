@@ -21,11 +21,12 @@ class Game
 {
    public:
     Game(const Options& options);
-    virtual ~Game();
+    virtual ~Game() = default;
     void Run();
 
-   protected:
     Backend m_backend;
+
+   protected:
     static constexpr double k_updateStep = 0.001;
 
     virtual void Start() = 0;

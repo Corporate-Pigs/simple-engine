@@ -5,10 +5,12 @@ SimpleEngine::Game::Game(const Options& a_options)
 {
 }
 
-SimpleEngine::Game::~Game() {}
-
 void SimpleEngine::Game::Run()
 {
+    if(m_backend.m_isRunning) {
+        assert(false);
+    }
+
     m_backend.Start();
     Start();
 
