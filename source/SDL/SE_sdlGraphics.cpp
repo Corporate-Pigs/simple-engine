@@ -9,7 +9,9 @@
 // Public functions
 SimpleEngine::Graphics::Graphics(const uint16_t p_windowWidth, const uint16_t p_windowHeight)
     : m_backgroundColor({0, 0, 0, 255}),
-      m_camera({0, {0.0f, 0.0f}, {static_cast<float>(p_windowWidth), static_cast<float>(p_windowHeight)}, 0.0f})
+      m_camera({0, {0.0f, 0.0f}, {static_cast<float>(p_windowWidth), static_cast<float>(p_windowHeight)}, 0.0f}),
+      m_windowWidth{p_windowWidth},
+      m_windowHeight(p_windowHeight)
 {
 }
 

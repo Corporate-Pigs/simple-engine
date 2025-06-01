@@ -28,6 +28,11 @@ const double SimpleEngine::Backend::UpdateElapsedTime()
     return m_elapsedTimeInSeconds;
 }
 
+uint32_t SimpleEngine::Backend::GetUptime()
+{
+    return SDL_GetTicks() / 1000.0f;
+}
+
 // Private Functions
 void SimpleEngine::Backend::Start()
 {

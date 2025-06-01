@@ -24,6 +24,8 @@ struct Backend
     Sound m_sound;
     Input m_input;
 
+    uint32_t GetUptime();
+
    protected:
     bool m_isRunning;
     double m_elapsedTimeInSeconds;

@@ -23,6 +23,9 @@ struct Graphics
     friend class Backend;
 
    public:
+    uint16_t m_windowWidth;
+    uint16_t m_windowHeight;
+
     Graphics(uint16_t p_windowWidth, uint16_t p_windowHeight);
     Color m_backgroundColor;
     Transform m_camera;
