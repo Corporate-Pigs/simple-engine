@@ -32,7 +32,8 @@ void SimpleEngine::Graphics::DrawLabel(const Label &p_label, const Transform &p_
     RenderingUnit ru = {RenderingUnit::Type::LABEL,
                         {p_transform.m_layer, p_transform.m_position,
                          p_transform.m_scale * (static_cast<float>(p_label.c_font_ptsize) / k_defaultFontPtSize),
-                         p_transform.m_rotationInRadians},
+                         p_transform.m_rotationInRadians,
+                         p_transform.m_anchor},
                         texturePtr};
     layerRef.emplace_back(ru);
 }
@@ -253,7 +254,7 @@ void SimpleEngine::Graphics::RenderSprite(const RenderingUnit &p_renderingUnitRe
                                       screenRect.h * p_renderingUnitRef.m_transform.m_anchor.y};
 
     double screenRectRotationDegrees =
-        p_renderingUnitRef.m_transform.m_rotationInRadians + m_camera.m_rotationInRadians * (180.0 / M_PI);
+        (p_renderingUnitRef.m_transform.m_rotationInRadians + m_camera.m_rotationInRadians) * (180.0 / M_PI);
     if (SDL_RenderCopyExF(m_rendererPtr, texturePtr, atlasRectPtr, &screenRect, screenRectRotationDegrees,
                           &rotationPoint, SDL_FLIP_NONE))
     {
