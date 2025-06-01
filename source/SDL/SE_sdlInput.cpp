@@ -121,6 +121,11 @@ bool SimpleEngine::Input::IsPerformingAction(const std::string& action)
     return false;
 }
 
+bool SimpleEngine::Input::IsPressingAnyKey()
+{
+    return !m_pressedKeys.empty();
+}
+
 void SimpleEngine::Input::Update(const SDL_Event& event, const double& currentTime)
 {
     SimpleEngine::InputKey simpleEngineKey;

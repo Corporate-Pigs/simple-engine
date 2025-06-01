@@ -25,6 +25,8 @@ namespace SimpleEngine {
 
         bool IsPerformingAction(const std::string& action);
 
+        bool IsPressingAnyKey();
+
         void Destroy();
     private:
         void Update(const SDL_Event& event, const double& currentTime);
