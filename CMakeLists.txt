@@ -10,7 +10,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Define asset path
 set(SE_ASSET_PATH ${CMAKE_CURRENT_SOURCE_DIR}/assets)
 
-set(SE_BACKEND "SDL")
+set(SE_BACKEND "SMT")
 
 if(SE_BACKEND STREQUAL "SDL")
     # Add SDL dependencies

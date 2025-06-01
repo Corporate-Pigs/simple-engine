@@ -9,7 +9,7 @@
 
 #include "SE_sdlGraphics.h"
 #include "SE_sdlSound.h"
-#include <SE_sdlInput.h>
+#include "SE_sdlInput.h"
 #include "SE_sprite.h"
 
 namespace SimpleEngine

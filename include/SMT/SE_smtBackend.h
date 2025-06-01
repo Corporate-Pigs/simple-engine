@@ -3,6 +3,7 @@
 #include <string>
 
 #include "SE_smtGraphics.h"
+#include "SE_smtInput.h"
 #include "SE_smtSound.h"
 #include "SE_sprite.h"
 
@@ -16,6 +17,7 @@ struct Backend
    public:
     Graphics m_graphics;
     Sound m_sound;
+    Input m_input;
     const double UpdateElapsedTime();
 
    protected:
@@ -29,6 +31,7 @@ struct Backend
     const uint16_t m_windowWidth;
     const uint16_t m_windowHeight;
     uint32_t m_lastUpdateStart;
+    double m_timeSinceTitleUpdate;
 
     void Start();
     void Update();

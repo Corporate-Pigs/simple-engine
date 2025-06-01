@@ -23,9 +23,9 @@ SimpleEngine::InputKey GetSimpleEngineKeyFromKeyboard(const SDL_Event& event)
             acc = 1;
         }
 
-        return (SimpleEngine::InputKey)(
-            (key ^ SDLK_SCANCODE_MASK) +
-            (SimpleEngine::InputKey::KB_CAPSLOCK - (SDLK_CAPSLOCK ^ SDLK_SCANCODE_MASK)) - acc);
+        return (SimpleEngine::InputKey)((key ^ SDLK_SCANCODE_MASK) +
+                                        (SimpleEngine::InputKey::KB_CAPSLOCK - (SDLK_CAPSLOCK ^ SDLK_SCANCODE_MASK)) -
+                                        acc);
     }
 
     // Modifier keys
@@ -40,10 +40,7 @@ SimpleEngine::InputKey GetSimpleEngineKeyFromMouse(const SDL_Event& event)
     return (SimpleEngine::InputKey)(key + SimpleEngine::InputKey::M_LEFT - 1);
 }
 
-SimpleEngine::Input::Input() : m_inputMapping(), m_pressedKeys() 
-{
-    m_pressedKeys.reserve(8); 
-}
+SimpleEngine::Input::Input() : m_inputMapping(), m_pressedKeys() { m_pressedKeys.reserve(8); }
 
 void SimpleEngine::Input::AddKeyBinds(const std::unordered_map<std::string, std::vector<InputKey>>& keyBinds)
 {
@@ -121,10 +118,7 @@ bool SimpleEngine::Input::IsPerformingAction(const std::string& action)
     return false;
 }
 
-bool SimpleEngine::Input::IsPressingAnyKey()
-{
-    return !m_pressedKeys.empty();
-}
+bool SimpleEngine::Input::IsPressingAnyKey() { return !m_pressedKeys.empty(); }
 
 void SimpleEngine::Input::Update(const SDL_Event& event, const double& currentTime)
 {
@@ -167,8 +161,6 @@ void SimpleEngine::Input::Update(const SDL_Event& event, const double& currentTi
             /*case SDL_MOUSEMOTION:
             case SDL_MOUSEWHEEL:*/
     }
-
-    return;
 }
 
 void SimpleEngine::Input::Destroy()
