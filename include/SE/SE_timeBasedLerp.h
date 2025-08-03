@@ -6,7 +6,7 @@ namespace SimpleEngine
 {
 
 template <typename T>
-struct LerpAnimation
+struct TimeBasedLerp
 {
     const T c_initialValue, c_finalValue;
     const double c_duration;
@@ -14,7 +14,7 @@ struct LerpAnimation
     T m_currentValue;
     double m_elapsedTime;
 
-    LerpAnimation(const T p_initialValue, const T p_finalValue, const double p_duration)
+    TimeBasedLerp(const T p_initialValue, const T p_finalValue, const double p_duration)
         : c_initialValue(p_initialValue),
           c_finalValue(p_finalValue),
           c_duration(p_duration),
@@ -23,20 +23,20 @@ struct LerpAnimation
 };
 
 template <typename T>
-bool DidEnd(const LerpAnimation<T> &p_animation)
+bool DidEnd(const TimeBasedLerp<T> &p_animation)
 {
     return p_animation.m_currentValue == p_animation.c_finalValue;
 }
 
 template <typename T>
-void Reset(LerpAnimation<T> &p_animation)
+void Reset(TimeBasedLerp<T> &p_animation)
 {
     p_animation.m_currentValue = p_animation.c_initialValue;
     p_animation.m_elapsedTime = 0.0;
 }
 
 template <typename T>
-void UpdateAnimation(LerpAnimation<T> &p_animation, const double p_elapsedTime)
+void UpdateAnimation(TimeBasedLerp<T> &p_animation, const double p_elapsedTime)
 {
     if (DidEnd(p_animation))
     {
